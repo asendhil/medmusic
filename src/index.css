@@ -74,8 +74,8 @@ button:focus-visible {
   justify-content: center;
   height: 100vh; /* Full viewport height */
   width: 100vw; /* Full viewport width */
-  background-color: #1db954;
-  color: white;
+  background-color: #E8E4CD;
+  color: #405139;
   font-family: Arial, sans-serif;
 }
 
@@ -87,17 +87,17 @@ button:focus-visible {
 .login-button {
   padding: 15px 30px;
   font-size: 16px;
-  background-color: #fff;
+  background-color: #405139;
   border: none;
-  color: #1db954;
+  color: #E8E4CD;
   cursor: pointer;
   border-radius: 50px;
   transition: all 0.3s ease-in-out;
 }
 
 .login-button:hover {
-  background-color: #17a34a;
-  color: white;
+  background-color: #E8E4CD;
+  color: #405139;
 }
 body {
   font-family: Arial, sans-serif;
@@ -107,14 +107,14 @@ body {
 button {
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #1DB954;
+  background-color: #E8E4CD;
   border: none;
-  color: white;
+  color: #405139;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #17a34a;
+  background-color: #E8E4CD;
 }
 
 .login-container {
@@ -123,8 +123,8 @@ button:hover {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #1db954;
-  color: white;
+  background-color: #E8E4CD;
+  color: #405139;
 }
 
 .login-title {
@@ -134,8 +134,8 @@ button:hover {
 .login-button {
   padding: 15px 30px;
   font-size: 16px;
-  background-color: white;
-  color: #1db954;
+  background-color: #E8E4CD;
+  color: #E8E4CD;
   border-radius: 50px;
   transition: all 0.3s;
 }
