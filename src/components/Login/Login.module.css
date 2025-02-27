@@ -1,0 +1,34 @@
+/* src/components/Login/Login.module.css */
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #1db954; /* Spotify green */
+    color: white;
+    font-family: Arial, sans-serif;
+  }
+  
+  .login-title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+  
+  .login-button {
+    padding: 15px 30px;
+    font-size: 16px;
+    background-color: #fff;
+    border: none;
+    color: #1db954;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .login-button:hover {
+    background-color: #17a34a;
+    color: white;
+  }
+  

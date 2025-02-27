@@ -1,13 +1,16 @@
-// src/components/Login.tsx
+// src/components/Login/Login.tsx
 
 import React from "react";
 import { loginWithSpotify } from "../../spotify";
+import "../../index.css"; // If using global styles
 
 const Login: React.FC = () => {
   return (
-    <div>
-      <h1>Welcome to My React Spotify App</h1>
-      <button onClick={loginWithSpotify}>Login with Spotify</button>
+    <div className="login-container">
+      <h1 className="login-title">Welcome to MedMusic</h1>
+      <button className="login-button" onClick={loginWithSpotify}>
+        Login with Spotify
+      </button>
     </div>
   );
 };
