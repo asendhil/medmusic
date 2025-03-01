@@ -80,3 +80,42 @@ export const fetchPlaylistTracks = async (playlistId: string, token: string | nu
   }
 };
 
+export const searchSpotifyTracks = async (query: string, token: string | null) => {
+  if (!token || query.trim() === "") {
+    console.error("No access token or empty search query");
+    return [];
+  }
+
+  try {
+    const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Search failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.tracks || !data.tracks.items) {
+      console.error("Unexpected API response", data);
+      return [];
+    }
+
+    return data.tracks.items.map((track: any) => ({
+      id: track.id,
+      name: track.name,
+      artists: track.artists.map((artist: any) => artist.name),
+      preview_url: track.preview_url, // Use this for playback
+      albumCover: track.album.images[0]?.url || "", // Use first image for album cover
+    }));
+  } catch (error) {
+    console.error("Error searching Spotify tracks:", error);
+    return [];
+  }
+};
+

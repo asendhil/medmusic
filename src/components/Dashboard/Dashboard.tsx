@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { fetchSpotifyData, fetchPlaylists } from "../../spotify";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { fetchSpotifyData, fetchPlaylists, searchSpotifyTracks } from "../../spotify";
+import { useNavigate } from "react-router-dom";
+import { FaPlay } from "react-icons/fa";
 import "../../index.css";
 
 interface DashboardProps {
@@ -17,16 +18,44 @@ interface Playlist {
   images: { url: string }[];
 }
 
+interface Track {
+  id: string;
+  name: string;
+  artists: string[];
+  preview_url: string | null;
+  albumCover: string;
+}
+
 const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [user, setUser] = useState<User | null>(null);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<Track[]>([]);
   const [activeTab, setActiveTab] = useState<"library" | "search">("library");
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
+  const audioRef = new Audio(); // Audio reference for playing tracks
 
   useEffect(() => {
     fetchSpotifyData(token).then(setUser);
     fetchPlaylists(token).then(setPlaylists);
   }, [token]);
+
+  // Handle Search Input
+  const handleSearch = async () => {
+    if (searchTerm.trim() === "") return;
+    const results = await searchSpotifyTracks(searchTerm, token);
+    setSearchResults(results);
+  };
+
+  // Play a track from search results
+  const handlePlay = (track: Track) => {
+    if (track.preview_url) {
+      audioRef.src = track.preview_url;
+      audioRef.play();
+    } else {
+      alert("No preview available for this track.");
+    }
+  };
 
   return (
     <div className="dashboard-container">
@@ -34,31 +63,21 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
 
       {/* Tab Navigation */}
       <div className="tab-menu">
-        <button
-          className={activeTab === "library" ? "active-tab" : ""}
-          onClick={() => setActiveTab("library")}
-        >
+        <button className={activeTab === "library" ? "active-tab" : ""} onClick={() => setActiveTab("library")}>
           Your Library
         </button>
-        <button
-          className={activeTab === "search" ? "active-tab" : ""}
-          onClick={() => setActiveTab("search")}
-        >
+        <button className={activeTab === "search" ? "active-tab" : ""} onClick={() => setActiveTab("search")}>
           Search
         </button>
       </div>
 
-      {/* Render Playlists */}
+      {/* Render Active Tab Content */}
       {activeTab === "library" ? (
         <div className="library-tab">
           <h2>Your Playlists</h2>
           <div className="playlist-list">
             {playlists.map((playlist) => (
-              <div
-                key={playlist.id}
-                className="playlist-item"
-                onClick={() => navigate(`/playlist/${playlist.id}`)} // Navigate to playlist page
-              >
+              <div key={playlist.id} className="playlist-item" onClick={() => navigate(`/playlist/${playlist.id}`)}>
                 <img src={playlist.images[0]?.url} alt="Playlist Cover" className="playlist-cover" />
                 <div className="playlist-info">
                   <h3 className="playlist-title">{playlist.name}</h3>
@@ -69,9 +88,28 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
         </div>
       ) : (
         <div className="search-tab">
-          <h2>Search</h2>
-          <input type="text" placeholder="Search for a song or artist..." />
-          <button>Search</button>
+          <h2>Search for Songs</h2>
+          <input
+            type="text"
+            placeholder="Search for a song or artist..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button onClick={handleSearch}>Search</button>
+
+          {/* Display Search Results */}
+          <div className="search-results">
+            {searchResults.map((track) => (
+              <div key={track.id} className="search-item">
+                <img src={track.albumCover} alt="Album Cover" className="search-cover" />
+                <div className="search-info">
+                  <h3>{track.name}</h3>
+                  <p>{track.artists.join(", ")}</p>
+                </div>
+                <button onClick={() => handlePlay(track)}><FaPlay /></button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -228,3 +228,63 @@ button:active {
 .search-tab button:hover {
   background-color: #2f3b2a;
 }
+
+/* Search Input */
+.search-tab input {
+  padding: 10px;
+  font-size: 16px;
+  width: 60%;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+/* Search Results List */
+.search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Search Result Item */
+.search-item {
+  display: flex;
+  align-items: center;
+  background: #282828;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.search-item:hover {
+  background: #323232;
+}
+
+/* Search Cover Image */
+.search-cover {
+  width: 60px;
+  height: 60px;
+  border-radius: 5px;
+  margin-right: 15px;
+}
+
+/* Search Info */
+.search-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  text-align: left;
+  color: white;
+}
+
+/* Search Play Button */
+.search-item button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 20px;
+}
