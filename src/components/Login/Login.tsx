@@ -2,8 +2,6 @@
 
 import React from "react";
 import { loginWithSpotify } from "../../spotify";
-import "../../index.css"; // If using global styles
-
 
 const Login: React.FC = () => {
   return (
@@ -22,3 +20,4 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+

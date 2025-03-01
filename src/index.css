@@ -19,6 +19,7 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
@@ -40,6 +41,7 @@ h1 {
   line-height: 1.1;
 }
 
+/* Buttons */
 button {
   padding: 10px 20px;
   font-size: 16px;
@@ -53,7 +55,6 @@ button {
 
 button:hover {
   background-color: #2f3b2a; /* Darker Green */
-  color: #E8E4CD; /* Beige text */
 }
 
 button:focus,
@@ -63,13 +64,13 @@ button:focus-visible {
 
 button:active {
   background-color: #2a3226; /* Even darker green */
-  color: #f5f5dc; /* Slightly lighter beige */
 }
 
+/* Login Button */
 .login-button {
   display: flex;
   align-items: center;  /* Align text and logo */
-  justify-content: center;  /* Center the content */
+  justify-content: center;  /* Keep content centered */
   padding: 15px 30px;
   font-size: 16px;
   background-color: #405139;
@@ -81,14 +82,9 @@ button:active {
   gap: 10px; /* Space between logo and text */
 }
 
-.spotify-logo {
-  width: 24px;  /* Adjust size */
-  height: 24px;
-}
-
+/* Login Button Hover & Focus */
 .login-button:hover {
   background-color: #2f3b2a; /* Darker Green */
-  color: #E8E4CD; /* Beige text */
 }
 
 .login-button:focus,
@@ -100,6 +96,13 @@ button:active {
   background-color: #2a3226; /* Even darker green */
 }
 
+/* ✅ Ensure Spotify Logo Inside Button Stays Correct */
+.spotify-logo {
+  width: 24px;
+  height: 24px;
+}
+
+/* Login Page */
 .login-container {
   display: flex;
   flex-direction: column;
@@ -116,12 +119,112 @@ button:active {
   margin-bottom: 20px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
+/* ✅ Dashboard General Layout */
+.dashboard-container {
+  text-align: center;
+  padding: 20px;
+}
+
+/* Tab Menu */
+.tab-menu {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.tab-menu button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  background-color: #405139;
+  color: #E8E4CD;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+.tab-menu button:hover {
+  background-color: #2f3b2a;
+}
+
+.active-tab {
+  background-color: #2f3b2a;
+  border: 2px solid #E8E4CD;
+}
+
+/* ✅ Playlist List */
+.playlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Playlist Item */
+.playlist-item {
+  display: flex;
+  align-items: center; /* Ensures title is vertically aligned with cover */
+  justify-content: flex-start; /* Ensures items stay in a row */
+  background: #282828;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+  width: 100%; /* Ensures it stretches to fit the container */
+}
+
+.playlist-item:hover {
+  background: #323232;
+}
+
+/* Playlist Cover (Left Side) */
+.playlist-cover {
+  width: 80px;
+  height: 80px;
+  border-radius: 5px;
+  margin-right: 15px;
+  flex-shrink: 0; /* Prevents shrinking */
+}
+
+/* Playlist Info (For Title Alignment) */
+.playlist-info {
+  display: flex;
+  align-items: center; /* Centers title vertically */
+  flex-grow: 1; /* Allows title section to expand */
+  text-align: left; /* Ensures title text is left-aligned */
+  white-space: nowrap; /* Prevents text from wrapping to the next line */
+  overflow: hidden; /* Hides overflowing text */
+  text-overflow: ellipsis; /* Adds "..." if text overflows */
+}
+
+/* Playlist Title */
+.playlist-title {
+  font-size: 18px;
+  color: white;
+  margin: 0;
+}
+
+/* Search Tab */
+.search-tab input {
+  padding: 10px;
+  font-size: 16px;
+  width: 60%;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.search-tab button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #405139;
+  color: #E8E4CD;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  border: none;
+}
+
+.search-tab button:hover {
+  background-color: #2f3b2a;
 }
