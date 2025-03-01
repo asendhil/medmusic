@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom"; // Import Router
 import Login from "./components/Login/Login";
 import Dashboard from "./components/Dashboard/Dashboard";
+import PlaylistPage from "./components/PlaylistPage/PlaylistPage"; // Import PlaylistPage
 import { getTokenFromUrl } from "./spotify";
-import logo from "./assets/MedMusic-Logo.png"; // ✅ Keep your logo import
+import logo from "./assets/MedMusic-Logo.png"; 
 
 const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
@@ -14,7 +16,7 @@ const App: React.FC = () => {
       window.location.hash = ""; // Clear the URL to prevent token leakage
     }
 
-    // ✅ Dynamically update the favicon
+    // Dynamically update the favicon
     const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
     if (link) {
       link.href = logo;
@@ -27,9 +29,15 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="App">
-      {token ? <Dashboard token={token} /> : <Login />}
-    </div>
+    <Router>
+      <Routes>
+        {/* Show Dashboard if token exists, otherwise show Login */}
+        <Route path="/" element={token ? <Dashboard token={token} /> : <Login />} />
+
+        {/* Playlist Page Route (Passes Token) */}
+        <Route path="/playlist/:id" element={<PlaylistPage token={token} />} />
+      </Routes>
+    </Router>
   );
 };
 

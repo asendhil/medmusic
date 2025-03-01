@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchSpotifyData, fetchPlaylists } from "../../spotify";
-import "../../index.css"; // ✅ Import global styles
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import "../../index.css";
 
 interface DashboardProps {
   token: string;
@@ -20,7 +21,7 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [user, setUser] = useState<User | null>(null);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [activeTab, setActiveTab] = useState<"library" | "search">("library");
-  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate(); // Hook for navigation
 
   useEffect(() => {
     fetchSpotifyData(token).then(setUser);
@@ -47,21 +48,18 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
         </button>
       </div>
 
-      {/* Render Active Tab Content */}
+      {/* Render Playlists */}
       {activeTab === "library" ? (
         <div className="library-tab">
           <h2>Your Playlists</h2>
           <div className="playlist-list">
             {playlists.map((playlist) => (
-              <div key={playlist.id} className="playlist-item">
-                {/* Playlist Cover on the Left */}
-                <img
-                  src={playlist.images[0]?.url}
-                  alt="Playlist Cover"
-                  className="playlist-cover"
-                />
-
-                {/* Playlist Title on the Right (Same Line) */}
+              <div
+                key={playlist.id}
+                className="playlist-item"
+                onClick={() => navigate(`/playlist/${playlist.id}`)} // Navigate to playlist page
+              >
+                <img src={playlist.images[0]?.url} alt="Playlist Cover" className="playlist-cover" />
                 <div className="playlist-info">
                   <h3 className="playlist-title">{playlist.name}</h3>
                 </div>
@@ -72,15 +70,8 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
       ) : (
         <div className="search-tab">
           <h2>Search</h2>
-          <input
-            type="text"
-            placeholder="Search for a song or artist..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button onClick={() => console.log("Searching for:", searchTerm)}>
-            Search
-          </button>
+          <input type="text" placeholder="Search for a song or artist..." />
+          <button>Search</button>
         </div>
       )}
     </div>

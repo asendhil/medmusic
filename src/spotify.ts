@@ -40,3 +40,43 @@ export const fetchPlaylists = async (token: string): Promise<any> => {
     console.error("Error fetching Spotify playlists", error);
   }
 };
+
+export const fetchPlaylistTracks = async (playlistId: string, token: string | null) => {
+  if (!token) {
+    console.error("No access token found");
+    return [];
+  }
+
+  try {
+    const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch playlist tracks: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    // Ensure the response is formatted correctly
+    if (!data.items) {
+      console.error("Unexpected API response", data);
+      return [];
+    }
+
+    return data.items.map((item: any) => ({
+      id: item.track.id,
+      name: item.track.name,
+      artists: item.track.artists.map((artist: any) => artist.name),
+      preview_url: item.track.preview_url, // Useful for playing song previews
+    }));
+  } catch (error) {
+    console.error("Error fetching playlist tracks:", error);
+    return [];
+  }
+};
+
