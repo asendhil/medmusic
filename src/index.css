@@ -1,5 +1,6 @@
 :root {
-  /* font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Global Styling */
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -28,6 +29,10 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background-color: #E8E4CD; /* Beige background */
+  color: #405139; /* Green text */
 }
 
 h1 {
@@ -36,22 +41,79 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #405139; /* Default Green */
+  color: #E8E4CD; /* Beige text */
+  border: none;
   cursor: pointer;
-  transition: border-color 0.25s;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
 }
+
 button:hover {
-  border-color: #646cff;
+  background-color: #2f3b2a; /* Darker Green */
+  color: #E8E4CD; /* Beige text */
 }
+
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 3px solid #E8E4CD; /* Beige outline */
+}
+
+button:active {
+  background-color: #2a3226; /* Even darker green */
+  color: #f5f5dc; /* Slightly lighter beige */
+}
+
+.login-button {
+  display: flex;
+  align-items: center;  /* Align text and logo */
+  justify-content: center;  /* Center the content */
+  padding: 15px 30px;
+  font-size: 16px;
+  background-color: #405139;
+  color: #E8E4CD;
+  border: none;
+  cursor: pointer;
+  border-radius: 50px;
+  transition: all 0.3s ease-in-out;
+  gap: 10px; /* Space between logo and text */
+}
+
+.spotify-logo {
+  width: 24px;  /* Adjust size */
+  height: 24px;
+}
+
+.login-button:hover {
+  background-color: #2f3b2a; /* Darker Green */
+  color: #E8E4CD; /* Beige text */
+}
+
+.login-button:focus,
+.login-button:focus-visible {
+  outline: 3px solid #E8E4CD;
+}
+
+.login-button:active {
+  background-color: #2a3226; /* Even darker green */
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #E8E4CD;
+  color: #405139;
+}
+
+.login-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
 }
 
 @media (prefers-color-scheme: light) {
@@ -62,83 +124,4 @@ button:focus-visible {
   a:hover {
     color: #747bff;
   }
-  button {
-    background-color: #f9f9f9;
-  } */
-
-  /* src/index.css */
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh; /* Full viewport height */
-  width: 100vw; /* Full viewport width */
-  background-color: #E8E4CD;
-  color: #405139;
-  font-family: Arial, sans-serif;
-}
-
-.login-title {
-  font-size: 2rem;
-  margin-bottom: 20px;
-}
-
-.login-button {
-  padding: 15px 30px;
-  font-size: 16px;
-  background-color: #405139;
-  border: none;
-  color: #E8E4CD;
-  cursor: pointer;
-  border-radius: 50px;
-  transition: all 0.3s ease-in-out;
-}
-
-.login-button:hover {
-  background-color: #E8E4CD;
-  color: #405139;
-}
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #E8E4CD;
-  border: none;
-  color: #405139;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #E8E4CD;
-}
-
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #E8E4CD;
-  color: #405139;
-}
-
-.login-title {
-  font-size: 2rem;
-}
-
-.login-button {
-  padding: 15px 30px;
-  font-size: 16px;
-  background-color: #E8E4CD;
-  color: #E8E4CD;
-  border-radius: 50px;
-  transition: all 0.3s;
-}
-
-
 }
