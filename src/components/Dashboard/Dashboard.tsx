@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchSpotifyData, fetchPlaylists } from "../../spotify";
-import { useNavigate } from "react-router-dom";
-import { FaPlay, FaPause, FaForward, FaBackward } from "react-icons/fa";
-import "../../index.css";
-
-// ✅ Declare Spotify Web Playback API globally
-declare global {
-  interface Window {
-    Spotify: any;
-  }
-}
+import "/src/index.css"; // ✅ Use global styles from src/index.css
 
 interface DashboardProps {
   token: string;
@@ -25,14 +16,22 @@ interface Playlist {
   images: { url: string }[];
 }
 
+interface Track {
+  id: string;
+  name: string;
+  uri: string;
+  preview_url: string | null;
+  album: { images: { url: string }[] };
+  artists: { name: string }[];
+}
+
 const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [user, setUser] = useState<User | null>(null);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [player, setPlayer] = useState<any | null>(null);
+  const [searchResults, setSearchResults] = useState<Track[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [deviceId, setDeviceId] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const [player, setPlayer] = useState<Spotify.Player | null>(null);
 
   useEffect(() => {
     fetchSpotifyData(token).then(setUser);
@@ -40,85 +39,58 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   }, [token]);
 
   useEffect(() => {
-    const checkForSpotify = () => {
-      if (window.Spotify) {
-        initializePlayer();
-      } else {
-        console.warn("⚠️ Spotify SDK not loaded yet, retrying...");
-        setTimeout(checkForSpotify, 500); // ✅ Retry every 500ms until loaded
-      }
-    };
-  
     const initializePlayer = () => {
       const newPlayer = new window.Spotify.Player({
         name: "MedMusic Web Player",
-        getOAuthToken: (cb: (token: string) => void) => cb(token),
+        getOAuthToken: (cb) => cb(token),
         volume: 0.5,
       });
-  
+
       setPlayer(newPlayer);
-  
-      newPlayer.addListener("ready", ({ device_id }: { device_id: string }) => {
-        console.log("✅ Spotify Player Ready! Device ID:", device_id);
+
+      newPlayer.addListener("ready", ({ device_id }) => {
         setDeviceId(device_id);
       });
-  
-      newPlayer.addListener("not_ready", ({ device_id }: { device_id: string }) => {
-        console.log("⚠️ Spotify Player Not Ready. Device ID:", device_id);
-      });
-  
+
       newPlayer.connect();
     };
-  
-    checkForSpotify();
+
+    if (window.Spotify) {
+      initializePlayer();
+    } else {
+      window.onSpotifyWebPlaybackSDKReady = initializePlayer;
+    }
   }, [token]);
-  
-  
-  
+
+  const handleSearch = async () => {
+    if (!searchTerm) return;
+
+    try {
+      const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(searchTerm)}&type=track`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      if (data.tracks?.items) setSearchResults(data.tracks.items);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
 
   const handlePlay = async (trackUri: string) => {
-    if (!deviceId) {
-      alert("Error: Spotify Web Player is not ready. Device ID is missing.");
-      return;
-    }
-  
-    console.log("▶️ Playing on Device ID:", deviceId);
-  
+    if (!deviceId) return alert("No active Spotify player found.");
+
     await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
       method: "PUT",
-      body: JSON.stringify({ uris: [trackUri] }),
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-    });
-  };
-  
-  const handlePause = async () => {
-    await fetch("https://api.spotify.com/v1/me/player/pause", {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    setIsPlaying(false);
-  };
-
-  const handleNext = async () => {
-    await fetch("https://api.spotify.com/v1/me/player/next", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  };
-
-  const handlePrevious = async () => {
-    await fetch("https://api.spotify.com/v1/me/player/previous", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      body: JSON.stringify({ uris: [trackUri] }),
     });
   };
 
@@ -126,28 +98,29 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
     <div className="dashboard-container">
       <h1>Welcome, {user?.display_name}!</h1>
 
-      <h2>Your Playlists</h2>
-      <div className="playlist-list">
-        {playlists.map((playlist) => (
-          <div key={playlist.id} className="playlist-item" onClick={() => navigate(`/playlist/${playlist.id}`)}>
-            <img src={playlist.images[0]?.url} alt="Playlist Cover" className="playlist-cover" />
-            <div className="playlist-info">
-              <h3 className="playlist-title">{playlist.name}</h3>
-            </div>
-          </div>
-        ))}
+      <div className="tab-menu">
+        <button className="tab-button" onClick={() => setSearchResults([])}>Your Library</button>
+        <button className="tab-button" onClick={handleSearch}>Search</button>
       </div>
 
-      {/* Player Controls */}
-      {currentTrack && (
-        <div className="player-controls">
-          <button onClick={handlePrevious}><FaBackward /></button>
-          <button onClick={isPlaying ? handlePause : () => handlePlay(currentTrack!)}>
-            {isPlaying ? <FaPause /> : <FaPlay />}
-          </button>
-          <button onClick={handleNext}><FaForward /></button>
+      {/* Search Section */}
+      <div className="search-tab">
+        <input type="text" placeholder="Search for a song..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        <button onClick={handleSearch}>Search</button>
+
+        <div className="search-results">
+          {searchResults.map((track) => (
+            <div key={track.id} className="search-result-item">
+              <img src={track.album.images[0]?.url} alt="Track Cover" className="search-track-cover" />
+              <div className="search-track-info">
+                <h3>{track.name}</h3>
+                <p>{track.artists.map((artist) => artist.name).join(", ")}</p>
+              </div>
+              <button onClick={() => handlePlay(track.uri)}>Play</button>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
