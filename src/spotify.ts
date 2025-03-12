@@ -2,22 +2,20 @@
 
 const CLIENT_ID = "fa3ca1ebe37a412c966ebdfca389a02d";
 const REDIRECT_URI = "http://localhost:5173/";
-const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=user-read-private user-read-email playlist-read-private`;
+//const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=user-read-private user-read-email playlist-read-private`;
+const AUTH_URL = `https://accounts.spotify.com/authorize?
+client_id=${CLIENT_ID}
+&response_type=token
+&redirect_uri=${REDIRECT_URI}
+&scope=user-read-private%20user-read-email%20
+user-read-playback-state%20user-modify-playback-state%20streaming
+%20app-remote-control%20user-library-read%20user-library-modify`;
+
 
 export const loginWithSpotify = (): void => {
   window.location.href = AUTH_URL;
 };
 
-// export const getTokenFromUrl = (): { access_token?: string } => {
-//   return window.location.hash
-//     .substring(1)
-//     .split("&")
-//     .reduce((initial: any, item) => {
-//       let parts = item.split("=");
-//       initial[parts[0]] = decodeURIComponent(parts[1]);
-//       return initial;
-//     }, {});
-// };
 export const getTokenFromUrl = () => {
   try {
     return window.location.hash
