@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchSpotifyData, fetchPlaylists } from "../../spotify";
-import "/src/index.css"; // ✅ Absolute import for Vite
+import "../../index.css"; // ✅ Use global styles from src/index.css
 
 interface DashboardProps {
   token: string;
@@ -34,12 +34,15 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [player, setPlayer] = useState<Spotify.Player | null>(null);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [trackDuration, setTrackDuration] = useState(0);
 
   useEffect(() => {
     fetchSpotifyData(token).then(setUser);
     fetchPlaylists(token).then(setPlaylists);
   }, [token]);
-
+  
+  // Initialize Spotify Web Playback SDK
   useEffect(() => {
     const initializePlayer = () => {
       const newPlayer = new window.Spotify.Player({
@@ -47,19 +50,21 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
         getOAuthToken: (cb) => cb(token),
         volume: 0.5,
       });
-
+  
       setPlayer(newPlayer);
-
+  
       newPlayer.addListener("ready", ({ device_id }) => {
-        console.log("Device Ready:", device_id);
         setDeviceId(device_id);
       });
-
+  
       newPlayer.addListener("player_state_changed", (state) => {
         if (!state) return;
         setIsPlaying(!state.paused);
+        setCurrentTime(state.position / 1000); // Convert ms to seconds
+        setTrackDuration(state.duration / 1000); // Convert ms to seconds
+  
         setCurrentTrack({
-          id: state.track_window.current_track.id ?? "unknown", // ✅ Fix: Provide fallback value
+          id: state.track_window.current_track.id ?? "unknown",
           name: state.track_window.current_track.name,
           uri: state.track_window.current_track.uri,
           preview_url: null,
@@ -67,29 +72,48 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
           artists: state.track_window.current_track.artists,
         });
       });
-      
-
+  
       newPlayer.connect();
     };
-
+  
     if (window.Spotify) {
       initializePlayer();
     } else {
       window.onSpotifyWebPlaybackSDKReady = initializePlayer;
     }
   }, [token]);
+  
+  // ✅ Automatically Update Progress Bar in Sync with the Song
+  useEffect(() => {
+    if (!player) return;
+  
+    const interval = setInterval(async () => {
+      const state = await player.getCurrentState();
+      if (!state) return;
+  
+      setIsPlaying(!state.paused);
+      setCurrentTime(state.position / 1000); // Convert ms to seconds
+      setTrackDuration(state.duration / 1000); // Convert ms to seconds
+    }, 1000); // Update every second
+  
+    return () => clearInterval(interval);
+  }, [player, isPlaying]);
+  
 
   const handleSearch = async () => {
     if (!searchTerm) return;
 
     try {
-      const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(searchTerm)}&type=track`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchTerm)}&type=track`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const data = await response.json();
       if (data.tracks?.items) setSearchResults(data.tracks.items);
@@ -112,7 +136,8 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   };
 
   const handlePause = async () => {
-    await fetch("https://api.spotify.com/v1/me/player/pause", {
+    if (!deviceId) return;
+    await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -121,7 +146,8 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   };
 
   const handleResume = async () => {
-    await fetch("https://api.spotify.com/v1/me/player/play", {
+    if (!deviceId) return;
+    await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -130,7 +156,8 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   };
 
   const handleNextTrack = async () => {
-    await fetch("https://api.spotify.com/v1/me/player/next", {
+    if (!deviceId) return;
+    await fetch(`https://api.spotify.com/v1/me/player/next?device_id=${deviceId}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -139,7 +166,8 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   };
 
   const handlePreviousTrack = async () => {
-    await fetch("https://api.spotify.com/v1/me/player/previous", {
+    if (!deviceId) return;
+    await fetch(`https://api.spotify.com/v1/me/player/previous?device_id=${deviceId}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -147,17 +175,28 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
     });
   };
 
+  const handleSeek = async (position: number) => {
+    if (!deviceId) return;
+    await fetch(`https://api.spotify.com/v1/me/player/seek?position_ms=${position * 1000}&device_id=${deviceId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
   return (
     <div className="dashboard-container">
       <h1>Welcome, {user?.display_name}!</h1>
 
       <div className="tab-menu">
-        <button className="tab-button" onClick={() => {
-          setSearchResults([]);
-          fetchPlaylists(token).then(setPlaylists); // ✅ Fix "Your Library"
-        }}>
-          Your Library
-        </button>
+        <button className="tab-button" onClick={() => setSearchResults([])}>Your Library</button>
         <button className="tab-button" onClick={handleSearch}>Search</button>
       </div>
 
@@ -180,13 +219,49 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
         </div>
       </div>
 
-      {/* Playback Controls */}
+      {/* Bottom Music Player */}
       {currentTrack && (
-        <div className="player-controls">
-          <h3>Now Playing: {currentTrack.name} - {currentTrack.artists.map((artist) => artist.name).join(", ")}</h3>
-          <button onClick={handlePreviousTrack}>⏮️ Prev</button>
-          {isPlaying ? <button onClick={handlePause}>⏸️ Pause</button> : <button onClick={handleResume}>▶️ Play</button>}
-          <button onClick={handleNextTrack}>⏭️ Next</button>
+        <div className="player-bar">
+          <div className="player-info">
+            <img src={currentTrack.album.images[0]?.url} alt="Album Cover" className="player-album-cover" />
+            <div className="player-song-details">
+              <h3>{currentTrack.name}</h3>
+              <p>{currentTrack.artists.map((artist) => artist.name).join(", ")}</p>
+            </div>
+          </div>
+
+          <div className="player-controls">
+            <button onClick={handlePreviousTrack} className="player-button">⏮️</button>
+            {isPlaying ? <button onClick={handlePause} className="player-button">⏸️</button> : <button onClick={handleResume} className="player-button">▶️</button>}
+            <button onClick={handleNextTrack} className="player-button">⏭️</button>
+          </div>
+
+          <div className="player-progress-container">
+            {/* Current Time Display */}
+            <span className="player-time">{formatTime(currentTime)}</span>
+
+            {/* Progress Bar Wrapper */}
+            <div className="player-progress-wrapper">
+              {/* Green Progress Line */}
+              <div
+                className="player-progress-bar"
+                style={{ width: `${(currentTime / trackDuration) * 100}%` }}
+              ></div>
+
+              {/* Progress Slider (Clickable) */}
+              <input
+                type="range"
+                min="0"
+                max={trackDuration}
+                value={currentTime}
+                onChange={(e) => handleSeek(Number(e.target.value))}
+                className="player-progress-slider"
+              />
+            </div>
+
+            {/* Total Duration Display */}
+            <span className="player-time">{formatTime(trackDuration)}</span>
+          </div>
         </div>
       )}
     </div>
