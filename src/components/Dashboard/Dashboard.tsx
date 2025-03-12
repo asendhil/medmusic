@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchSpotifyData, fetchPlaylists } from "../../spotify";
-import "/src/index.css"; // ✅ Use global styles from src/index.css
+import "/src/index.css"; // ✅ Absolute import for Vite
 
 interface DashboardProps {
   token: string;
@@ -32,6 +32,8 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [player, setPlayer] = useState<Spotify.Player | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     fetchSpotifyData(token).then(setUser);
@@ -49,8 +51,23 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
       setPlayer(newPlayer);
 
       newPlayer.addListener("ready", ({ device_id }) => {
+        console.log("Device Ready:", device_id);
         setDeviceId(device_id);
       });
+
+      newPlayer.addListener("player_state_changed", (state) => {
+        if (!state) return;
+        setIsPlaying(!state.paused);
+        setCurrentTrack({
+          id: state.track_window.current_track.id ?? "unknown", // ✅ Fix: Provide fallback value
+          name: state.track_window.current_track.name,
+          uri: state.track_window.current_track.uri,
+          preview_url: null,
+          album: state.track_window.current_track.album,
+          artists: state.track_window.current_track.artists,
+        });
+      });
+      
 
       newPlayer.connect();
     };
@@ -94,12 +111,53 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
     });
   };
 
+  const handlePause = async () => {
+    await fetch("https://api.spotify.com/v1/me/player/pause", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
+
+  const handleResume = async () => {
+    await fetch("https://api.spotify.com/v1/me/player/play", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
+
+  const handleNextTrack = async () => {
+    await fetch("https://api.spotify.com/v1/me/player/next", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
+
+  const handlePreviousTrack = async () => {
+    await fetch("https://api.spotify.com/v1/me/player/previous", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
+
   return (
     <div className="dashboard-container">
       <h1>Welcome, {user?.display_name}!</h1>
 
       <div className="tab-menu">
-        <button className="tab-button" onClick={() => setSearchResults([])}>Your Library</button>
+        <button className="tab-button" onClick={() => {
+          setSearchResults([]);
+          fetchPlaylists(token).then(setPlaylists); // ✅ Fix "Your Library"
+        }}>
+          Your Library
+        </button>
         <button className="tab-button" onClick={handleSearch}>Search</button>
       </div>
 
@@ -121,6 +179,16 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
           ))}
         </div>
       </div>
+
+      {/* Playback Controls */}
+      {currentTrack && (
+        <div className="player-controls">
+          <h3>Now Playing: {currentTrack.name} - {currentTrack.artists.map((artist) => artist.name).join(", ")}</h3>
+          <button onClick={handlePreviousTrack}>⏮️ Prev</button>
+          {isPlaying ? <button onClick={handlePause}>⏸️ Pause</button> : <button onClick={handleResume}>▶️ Play</button>}
+          <button onClick={handleNextTrack}>⏭️ Next</button>
+        </div>
+      )}
     </div>
   );
 };
