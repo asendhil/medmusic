@@ -8,16 +8,32 @@ export const loginWithSpotify = (): void => {
   window.location.href = AUTH_URL;
 };
 
-export const getTokenFromUrl = (): { access_token?: string } => {
-  return window.location.hash
-    .substring(1)
-    .split("&")
-    .reduce((initial: any, item) => {
-      let parts = item.split("=");
-      initial[parts[0]] = decodeURIComponent(parts[1]);
-      return initial;
-    }, {});
+// export const getTokenFromUrl = (): { access_token?: string } => {
+//   return window.location.hash
+//     .substring(1)
+//     .split("&")
+//     .reduce((initial: any, item) => {
+//       let parts = item.split("=");
+//       initial[parts[0]] = decodeURIComponent(parts[1]);
+//       return initial;
+//     }, {});
+// };
+export const getTokenFromUrl = () => {
+  try {
+    return window.location.hash
+      .substring(1)
+      .split("&")
+      .reduce((initial: any, item) => {
+        let parts = item.split("=");
+        initial[parts[0]] = decodeURIComponent(parts[1]);
+        return initial;
+      }, {});
+  } catch (error) {
+    console.error("Error parsing token from URL:", error);
+    return {};
+  }
 };
+
 
 export const fetchSpotifyData = async (token: string): Promise<any> => {
   try {
@@ -100,22 +116,22 @@ export const searchSpotifyTracks = async (query: string, token: string | null) =
     }
 
     const data = await response.json();
-
-    if (!data.tracks || !data.tracks.items) {
-      console.error("Unexpected API response", data);
-      return [];
-    }
+    
+    // ✅ Log the response to check if preview_url exists
+    console.log("Spotify API Response:", data.tracks.items);
 
     return data.tracks.items.map((track: any) => ({
       id: track.id,
       name: track.name,
       artists: track.artists.map((artist: any) => artist.name),
-      preview_url: track.preview_url, // Use this for playback
-      albumCover: track.album.images[0]?.url || "", // Use first image for album cover
+      preview_url: track.preview_url || null, // ✅ Ensure we handle null values
+      albumCover: track.album.images[0]?.url || "",
     }));
   } catch (error) {
     console.error("Error searching Spotify tracks:", error);
     return [];
   }
 };
+
+
 

@@ -69,8 +69,8 @@ button:active {
 /* Login Button */
 .login-button {
   display: flex;
-  align-items: center;  /* Align text and logo */
-  justify-content: center;  /* Keep content centered */
+  align-items: center;
+  justify-content: center;
   padding: 15px 30px;
   font-size: 16px;
   background-color: #405139;
@@ -79,12 +79,11 @@ button:active {
   cursor: pointer;
   border-radius: 50px;
   transition: all 0.3s ease-in-out;
-  gap: 10px; /* Space between logo and text */
+  gap: 10px;
 }
 
-/* Login Button Hover & Focus */
 .login-button:hover {
-  background-color: #2f3b2a; /* Darker Green */
+  background-color: #2f3b2a;
 }
 
 .login-button:focus,
@@ -93,10 +92,10 @@ button:active {
 }
 
 .login-button:active {
-  background-color: #2a3226; /* Even darker green */
+  background-color: #2a3226;
 }
 
-/* Ensure Spotify Logo Inside Button Stays Correct */
+/* Spotify Logo Inside Button */
 .spotify-logo {
   width: 24px;
   height: 24px;
@@ -166,37 +165,37 @@ button:active {
 /* Playlist Item */
 .playlist-item {
   display: flex;
-  align-items: center; /* Ensures title is vertically aligned with cover */
-  justify-content: flex-start; /* Ensures items stay in a row */
+  align-items: center;
+  justify-content: flex-start;
   background: #282828;
   padding: 10px;
   border-radius: 8px;
   transition: background-color 0.3s;
-  width: 100%; /* Ensures it stretches to fit the container */
+  width: 100%;
 }
 
 .playlist-item:hover {
   background: #323232;
 }
 
-/* Playlist Cover (Left Side) */
+/* Playlist Cover */
 .playlist-cover {
   width: 80px;
   height: 80px;
   border-radius: 5px;
   margin-right: 15px;
-  flex-shrink: 0; /* Prevents shrinking */
+  flex-shrink: 0;
 }
 
-/* Playlist Info (For Title Alignment) */
+/* Playlist Info */
 .playlist-info {
   display: flex;
-  align-items: center; /* Centers title vertically */
-  flex-grow: 1; /* Allows title section to expand */
-  text-align: left; /* Ensures title text is left-aligned */
-  white-space: nowrap; /* Prevents text from wrapping to the next line */
-  overflow: hidden; /* Hides overflowing text */
-  text-overflow: ellipsis; /* Adds "..." if text overflows */
+  align-items: center;
+  flex-grow: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Playlist Title */
@@ -204,29 +203,6 @@ button:active {
   font-size: 18px;
   color: white;
   margin: 0;
-}
-
-/* Search Tab */
-.search-tab input {
-  padding: 10px;
-  font-size: 16px;
-  width: 60%;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-.search-tab button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #405139;
-  color: #E8E4CD;
-  border-radius: 8px;
-  transition: all 0.3s ease-in-out;
-  border: none;
-}
-
-.search-tab button:hover {
-  background-color: #2f3b2a;
 }
 
 /* Search Input */
@@ -238,7 +214,7 @@ button:active {
   margin-bottom: 10px;
 }
 
-/* Search Results List */
+/* Search Results */
 .search-results {
   display: flex;
   flex-direction: column;
@@ -263,7 +239,7 @@ button:active {
   background: #323232;
 }
 
-/* Search Cover Image */
+/* Search Cover */
 .search-cover {
   width: 60px;
   height: 60px;
@@ -287,4 +263,68 @@ button:active {
   color: white;
   cursor: pointer;
   font-size: 20px;
+}
+
+/* Playlist Page */
+.playlist-page {
+  padding: 20px;
+  text-align: center;
+}
+
+/* Back Button */
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #405139;
+}
+
+.back-button:hover {
+  color: #2f3b2a;
+}
+
+/* Track List */
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Track Item */
+.track-item {
+  display: flex;
+  align-items: center;
+  background: #282828;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.track-item:hover {
+  background: #323232;
+}
+
+/* Player Controls */
+.player-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.player-controls button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 24px;
 }

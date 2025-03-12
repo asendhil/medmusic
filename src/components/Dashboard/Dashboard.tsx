@@ -50,12 +50,13 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   // Play a track from search results
   const handlePlay = (track: Track) => {
     if (track.preview_url) {
-      audioRef.src = track.preview_url;
-      audioRef.play();
+      const audio = new Audio(track.preview_url);
+      audio.play();
     } else {
-      alert("No preview available for this track.");
+      alert(`No preview available for "${track.name}" by ${track.artists.join(", ")}`);
     }
   };
+  
 
   return (
     <div className="dashboard-container">
@@ -106,7 +107,14 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
                   <h3>{track.name}</h3>
                   <p>{track.artists.join(", ")}</p>
                 </div>
-                <button onClick={() => handlePlay(track)}><FaPlay /></button>
+                {/* <button onClick={() => handlePlay(track)}><FaPlay /></button> */}
+                {track.preview_url ? (
+                  <button onClick={() => handlePlay(track)}><FaPlay /></button>
+                ) : (
+                  <a href={`https://open.spotify.com/track/${track.id}`} target="_blank" rel="noopener noreferrer">
+                    Open on Spotify
+                  </a>
+                )}
               </div>
             ))}
           </div>
