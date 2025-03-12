@@ -107,13 +107,16 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
                   <h3>{track.name}</h3>
                   <p>{track.artists.join(", ")}</p>
                 </div>
-                {/* <button onClick={() => handlePlay(track)}><FaPlay /></button> */}
                 {track.preview_url ? (
                   <button onClick={() => handlePlay(track)}><FaPlay /></button>
                 ) : (
-                  <a href={`https://open.spotify.com/track/${track.id}`} target="_blank" rel="noopener noreferrer">
-                    Open on Spotify
-                  </a>
+                  <iframe
+                    src={`https://open.spotify.com/embed/track/${track.id}`}
+                    width="300"
+                    height="80"
+                    frameBorder="0"
+                    allow="encrypted-media"
+                  ></iframe>
                 )}
               </div>
             ))}
