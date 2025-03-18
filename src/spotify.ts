@@ -122,6 +122,7 @@ export const searchSpotifyTracks = async (query: string, token: string | null) =
       id: track.id,
       name: track.name,
       artists: track.artists.map((artist: any) => artist.name),
+      artistId: track.artists[0]?.id || null, //fetch artistID for genre search
       preview_url: track.preview_url || null, // ✅ Ensure we handle null values
       albumCover: track.album.images[0]?.url || "",
     }));
@@ -131,5 +132,48 @@ export const searchSpotifyTracks = async (query: string, token: string | null) =
   }
 };
 
+//fetch genre
+export const getArtistGenres = async (artistId: string, token: string | null): Promise<any> => {
+  if (!token || !artistId)
+  {
+    console.error("No access token or artist ID");
+    return [];
+  }
 
+  try {
+    const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok)
+    {
+      throw new Error(`Failed to fetch artist data: ${response.statusText}`);
+
+    }
+
+    const artistData = await response.json();
+    return artistData.genres; //genre field of response
+  }
+  catch (error) {
+    console.error("Error fetching artist genres:", error);
+    return [];
+  }
+};
+
+export async function run(model: string, input: { messages: { role: string; content: string; }[]; }) {
+  const response = await fetch(
+    `https://cors-anywhere.herokuapp.com/https://api.cloudflare.com/client/v4/accounts/4846d821449cb759344a3835103dcef6/ai/run/${model}`,
+    {
+      headers: { Authorization: "Bearer Y3-EO6gvkLe1k5G1fRQUiVVAGoK-3eHJe54zgCmz" },
+      method: "POST",
+      body: JSON.stringify(input),
+    }
+  );
+  const result = await response.json();
+  return result;
+}
 

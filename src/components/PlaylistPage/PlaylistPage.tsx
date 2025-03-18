@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchPlaylistTracks } from "../../spotify";
+import { fetchPlaylistTracks, getArtistGenres, run } from "../../spotify";
 import { FaPlay, FaPause, FaForward, FaBackward, FaArrowLeft } from "react-icons/fa";
 import "../../index.css";
 
@@ -8,6 +8,7 @@ interface Track {
   id: string;
   name: string;
   artists: string[];
+  artistId: string | null;
   preview_url: string | null;
 }
 
@@ -29,13 +30,37 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ token }) => {
     }
   }, [id, token]);
 
+  
+
   // Play a track
-  const handlePlay = (track: Track) => {
+  const handlePlay = async (track: Track) => {
     if (track.preview_url) {
       audioRef.src = track.preview_url;
       audioRef.play();
       setCurrentTrack(track);
       setIsPlaying(true);
+      const artistId = track.artistId;
+      if (artistId)
+      {
+        const fetchedGenres = await getArtistGenres(artistId, token);
+        console.log("Artist Genres:", fetchedGenres);
+        run("@cf/meta/llama-3-8b-instruct", {
+          messages: [
+            {
+              role: "system",
+              content: "You are a friendly assistant",
+            },
+            {
+              role: "user",
+              content: "Write a 1 line summary about rap",
+            },
+          ],
+        }).then((response) => {
+          console.log(JSON.stringify(response));
+        });
+      }
+
+      
     } else {
       alert("No preview available for this track");
     }
@@ -50,6 +75,7 @@ const PlaylistPage: React.FC<PlaylistPageProps> = ({ token }) => {
   // Skip forward to the next track
   const handleForward = () => {
     const index = tracks.findIndex((t) => t.id === currentTrack?.id);
+    console.log(index);
     if (index !== -1 && index < tracks.length - 1) {
       handlePlay(tracks[index + 1]);
     }

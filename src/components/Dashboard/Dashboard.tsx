@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchSpotifyData, fetchPlaylists } from "../../spotify";
+import { fetchSpotifyData, fetchPlaylists, getArtistGenres, run } from "../../spotify";
 import "../../index.css"; // ✅ Use global styles from src/index.css
 
 interface DashboardProps {
@@ -21,9 +21,12 @@ interface Track {
   name: string;
   uri: string;
   preview_url: string | null;
+  artistId: string | null;
   album: { images: { url: string }[] };
   artists: { name: string }[];
 }
+
+
 
 const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -36,6 +39,8 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [trackDuration, setTrackDuration] = useState(0);
+
+  const [aiSummary, setAiSummary] = useState<string>("");
 
   useEffect(() => {
     fetchSpotifyData(token).then(setUser);
@@ -57,21 +62,29 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
         setDeviceId(device_id);
       });
   
-      newPlayer.addListener("player_state_changed", (state) => {
+      newPlayer.addListener("player_state_changed", async (state) => {
         if (!state) return;
         setIsPlaying(!state.paused);
         setCurrentTime(state.position / 1000); // Convert ms to seconds
         setTrackDuration(state.duration / 1000); // Convert ms to seconds
-  
+
+        
+        
+        let artistId = "";
         setCurrentTrack({
           id: state.track_window.current_track.id ?? "unknown",
           name: state.track_window.current_track.name,
           uri: state.track_window.current_track.uri,
           preview_url: null,
+          artistId: artistId,
           album: state.track_window.current_track.album,
           artists: state.track_window.current_track.artists,
         });
+
+        
       });
+
+        
   
       newPlayer.connect();
     };
@@ -122,7 +135,7 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
     }
   };
 
-  const handlePlay = async (trackUri: string) => {
+  const handlePlay = async (track: Track) => {
     if (!deviceId) return alert("No active Spotify player found.");
 
     await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
@@ -131,8 +144,49 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ uris: [trackUri] }),
+      body: JSON.stringify({ uris: [track.uri] }),
     });
+
+    let artistId = null;
+    //get the first artist ID of the track
+    if (!artistId)
+    {
+      
+        try {
+          const trackResponse = await fetch(`https://api.spotify.com/v1/tracks/${track.id}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+          //with artist id, get genres[] of artist
+          if (trackResponse.ok) {
+            const trackData = await trackResponse.json();
+            artistId = trackData.artists[0]?.id || null;
+            console.log("Artist ID: ", artistId);
+            const genres = await getArtistGenres(artistId, token);
+            console.log("Artist Genres:", genres);
+            //ask AI to make a summary of the genres
+            if (genres.length > 0)
+            {
+              run("@cf/meta/llama-3-8b-instruct", {
+              messages: [
+                { role: "system", content: "You are a friendly assistant" },
+                { role: "user", content: `Generate an image influenced by the genres: ${genres.join(", ")}` },
+              ],
+              }).then((response) => {
+                console.log("Run API Response:", JSON.stringify(response));
+                //const aiText = JSON.stringify(response.response || "No AI summary available.");
+                const aiText = response.result?.response || "No AI summary available.";
+                setAiSummary(aiText);
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching track details:", error);
+        }
+    }
   };
 
   const handlePause = async () => {
@@ -195,6 +249,11 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
     <div className="dashboard-container">
       <h1>Welcome, {user?.display_name}!</h1>
 
+      <div className="ai-summary-box">
+        <h3>Ai Genre Summary</h3>
+        <p>{aiSummary || "Play a song to see the genre summary!"}</p>
+      </div>
+
       <div className="tab-menu">
         <button className="tab-button" onClick={() => setSearchResults([])}>Your Library</button>
         <button className="tab-button" onClick={handleSearch}>Search</button>
@@ -213,7 +272,7 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
                 <h3>{track.name}</h3>
                 <p>{track.artists.map((artist) => artist.name).join(", ")}</p>
               </div>
-              <button onClick={() => handlePlay(track.uri)}>Play</button>
+              <button onClick={() => handlePlay(track)}>Play</button>
             </div>
           ))}
         </div>
