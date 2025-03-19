@@ -137,13 +137,23 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
     let endColor = hexToHSL(baseColors[1]);   // ✅ Now it works
   
     // ✅ Generate Moving Blobs
-    const blobs = Array.from({ length: 5 }).map(() => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      radius: Math.random() * 150 + 80,
-      dx: (Math.random() - 0.5) * 2,
-      dy: (Math.random() - 0.5) * 2,
-    }));
+    const blobs = Array.from({ length: 5 }).map(() => {
+      let radius = Math.random() * 150 + 80;
+      
+      // ✅ Ensure blobs do NOT spawn too close to the edges
+      let x = Math.random() * (canvas.width - 2 * radius) + radius;
+      let y = Math.random() * (canvas.height - 2 * radius) + radius;
+      
+      let dx = (Math.random() - 0.5) * 2;
+      let dy = (Math.random() - 0.5) * 2;
+    
+      // ✅ Ensure blobs don’t start with zero movement
+      if (Math.abs(dx) < 0.2) dx = dx > 0 ? 0.5 : -0.5;
+      if (Math.abs(dy) < 0.2) dy = dy > 0 ? 0.5 : -0.5;
+    
+      return { x, y, radius, dx, dy };
+    });
+    
   
     const animateBackground = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -170,20 +180,42 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
       blobs.forEach((blob) => {
         blob.x += blob.dx;
         blob.y += blob.dy;
-  
-        if (blob.x - blob.radius < 0 || blob.x + blob.radius > canvas.width) blob.dx *= -1;
-        if (blob.y - blob.radius < 0 || blob.y + blob.radius > canvas.height) blob.dy *= -1;
-  
+      
+        // Check if the blob hits the horizontal edges
+        if (blob.x - blob.radius <= 0 || blob.x + blob.radius >= canvas.width) {
+          blob.dx *= -1; // Reverse horizontal direction
+          blob.x += blob.dx * 2; // ✅ Ensure movement continues
+        }
+        
+        // Check if the blob hits the vertical edges
+        if (blob.y - blob.radius <= 0 || blob.y + blob.radius >= canvas.height) {
+          blob.dy *= -1; // Reverse vertical direction
+          blob.y += blob.dy * 2; // ✅ Ensure movement continues
+        }
+      
+        // ✅ Prevent Blobs from Getting Stuck in Corners
+        if (
+          (blob.x - blob.radius <= 0 || blob.x + blob.radius >= canvas.width) &&
+          (blob.y - blob.radius <= 0 || blob.y + blob.radius >= canvas.height)
+        ) {
+          // Nudge the blob in a random direction
+          blob.dx = (Math.random() - 0.5) * 2;
+          blob.dy = (Math.random() - 0.5) * 2;
+        }
+      
+        // Create a smooth gradient for each blob
         let blobGradient = ctx.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, blob.radius);
         blobGradient.addColorStop(0, `hsl(${startColor.h}, ${startColor.s}%, ${Math.min(startColor.l + 10, 100)}%)`);
         blobGradient.addColorStop(1, `hsl(${endColor.h}, ${endColor.s}%, ${Math.max(endColor.l - 10, 0)}%)`);
-  
+      
         ctx.beginPath();
         ctx.arc(blob.x, blob.y, blob.radius, 0, Math.PI * 2);
         ctx.fillStyle = blobGradient;
         ctx.globalAlpha = 0.7;
         ctx.fill();
       });
+      
+      
   
       animationFrameId = requestAnimationFrame(animateBackground);
     };
