@@ -71,6 +71,33 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   }, [token]);
 
   useEffect(() => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+  
+    // ✅ Resize canvas to match full window size
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      drawBackground(ctx); // ✅ Draw initial background
+    };
+  
+    // ✅ Function to draw the color background
+    const drawBackground = (ctx: CanvasRenderingContext2D) => {
+      ctx.fillStyle = genreColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    };
+  
+    // ✅ Handle window resizing
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas(); // Ensure full size on load
+  
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, [genreColor]); // ✅ Re-run when `genreColor` changes
+  
+
+  useEffect(() => {
     const initializePlayer = () => {
       const newPlayer = new window.Spotify.Player({
         name: "MedMusic Web Player",
@@ -148,6 +175,22 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
       window.onSpotifyWebPlaybackSDKReady = initializePlayer;
     }
   }, [token]);
+
+  useEffect(() => {
+    if (!player || !isPlaying) return;
+  
+    // Update progress every second while playing
+    const interval = setInterval(async () => {
+      const state = await player.getCurrentState();
+      if (!state) return;
+  
+      setCurrentTime(state.position / 1000); // Convert ms to seconds
+      setTrackDuration(state.duration / 1000); // Convert ms to seconds
+    }, 1000); // ✅ Updates every second
+  
+    return () => clearInterval(interval); // ✅ Cleanup on unmount
+  }, [player, isPlaying]);
+  
 
   const handlePlay = async (track: Track) => {
     if (!deviceId) return alert("No active Spotify player found.");
@@ -266,18 +309,12 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   
 
   return (
-    <div className="dashboard-container" style={{ backgroundColor: genreColor }}>
-      <h1>Welcome, {user?.display_name}!</h1>
+    <div className="dashboard-container">
+  <h1>Welcome, {user?.display_name}!</h1>
 
-      <div className="ai-summary-box">
-        <h3>AI Genre Summary</h3>
-        <p>{aiSummary || "Play a song to see the genre summary!"}</p>
-      </div>
-
-      {/* 🎨 Canvas for Genre-Based Visualization */}
-      <canvas ref={canvasRef} width="400" height="100" className="genre-visualization"></canvas>
-
-      {/* 🎵 Search Bar */}
+  {/* 🔍 Search Section (Contains both Search Bar & Results) */}
+  <div className="search-container">
+    <div className="search-tab">
       <input
         type="text"
         placeholder="Search for a song..."
@@ -285,69 +322,74 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <button onClick={handleSearch}>Search</button>
-
-      {/* 🎶 Search Results */}
-      <div className="search-results">
-        {searchResults.map((track) => (
-          <div key={track.id} className="search-result-item">
-            {/* 🎵 Album Cover */}
-            <img src={track.album.images[0]?.url} alt="Track Cover" className="search-track-cover" />
-
-            {/* 🎶 Track & Artist Info */}
-            <div className="search-track-info">
-              <h3>{track.name}</h3>
-              <p>{track.artists.map((artist) => artist.name).join(", ")}</p>
-            </div>
-
-            {/* ▶️ Play Button */}
-            <button onClick={() => handlePlay(track)} className="search-play-button">
-              ▶️
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* 🎶 Bottom Music Player */}
-        {currentTrack && (
-          <div className="player-bar">
-            
-            {/* 🎵 Album Cover & Song Details */}
-            <div className="player-info">
-              <img src={currentTrack.album.images[0]?.url} alt="Album Cover" className="player-album-cover" />
-              <div className="player-song-details">
-                <h3>{currentTrack.name}</h3>
-                <p>{currentTrack.artists.map((artist) => artist.name).join(", ")}</p>
-              </div>
-            </div>
-
-            {/* 🎮 Player Controls */}
-            <div className="player-controls">
-              <button onClick={handlePreviousTrack} className="player-button">⏮️</button>
-              {isPlaying ? (
-                <button onClick={handlePause} className="player-button">⏸️</button>
-              ) : (
-                <button onClick={handleResume} className="player-button">▶️</button>
-              )}
-              <button onClick={handleNextTrack} className="player-button">⏭️</button>
-            </div>
-
-            {/* ⏳ Progress Bar & Time Display */}
-            <div className="player-progress-container">
-              <span className="player-time">{formatTime(currentTime)}</span>
-              <input
-                type="range"
-                min="0"
-                max={trackDuration}
-                value={currentTime}
-                onChange={(e) => handleSeek(Number(e.target.value))}
-                className="player-progress-slider"
-              />
-              <span className="player-time">{formatTime(trackDuration)}</span>
-            </div>
-          </div>
-        )}
-
     </div>
+
+    {/* 🔎 Search Results (Now Positioned Closer) */}
+    <div className="search-results">
+      {searchResults.map((track) => (
+        <div key={track.id} className="search-result-item">
+          <img src={track.album.images[0]?.url} alt="Track Cover" className="search-track-cover" />
+          <div className="search-track-info">
+            <h3>{track.name}</h3>
+            <p>{track.artists.map((artist) => artist.name).join(", ")}</p>
+          </div>
+          <button onClick={() => handlePlay(track)} className="search-play-button">▶️</button>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* 🎨 AI Summary Box */}
+  <div className="ai-summary-box">
+    <h3>AI Genre Summary</h3>
+    <p>{aiSummary || "Play a song to see the genre summary!"}</p>
+  </div>
+
+  {/* 🎨 Canvas for Genre-Based Visualization */}
+  <canvas ref={canvasRef} className="background-visualization"></canvas>
+
+  {/* 🎶 Bottom Music Player */}
+{currentTrack && (
+  <div className="player-bar">
+    
+    {/* 🎵 Album Cover & Song Details */}
+    <div className="player-info">
+      <img src={currentTrack.album.images[0]?.url} alt="Album Cover" className="player-album-cover" />
+      <div className="player-song-details">
+        <h3>{currentTrack.name}</h3>
+        <p>{currentTrack.artists.map((artist) => artist.name).join(", ")}</p>
+      </div>
+    </div>
+
+    {/* 🎮 Player Controls */}
+    <div className="player-controls">
+      <button onClick={handlePreviousTrack} className="player-button">⏮️</button>
+      {isPlaying ? (
+        <button onClick={handlePause} className="player-button">⏸️</button>
+      ) : (
+        <button onClick={handleResume} className="player-button">▶️</button>
+      )}
+      <button onClick={handleNextTrack} className="player-button">⏭️</button>
+    </div>
+
+    {/* ⏳ Progress Bar & Time Display */}
+    <div className="player-progress-container">
+      <span className="player-time">{formatTime(currentTime)}</span>
+      <input
+        type="range"
+        min="0"
+        max={trackDuration}
+        value={currentTime}
+        onChange={(e) => handleSeek(Number(e.target.value))}
+        className="player-progress-slider"
+      />
+      <span className="player-time">{formatTime(trackDuration)}</span>
+    </div>
+  </div>
+)}
+
+</div>
+
   );
 };
 

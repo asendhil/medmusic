@@ -154,7 +154,7 @@ button:active {
 }
 
 /* 🔹 Search Section */
-.search-tab input {
+/* .search-tab input {
   padding: 10px;
   font-size: 16px;
   width: 60%;
@@ -176,25 +176,68 @@ button:active {
 
 .search-tab button:hover {
   background-color: var(--hover-color);
+} */
+.search-tab {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px; /* ✅ Adds space below the welcome message */
 }
 
+.search-tab input {
+  padding: 10px;
+  font-size: 16px;
+  width: 50%; /* ✅ Centers and makes it responsive */
+  max-width: 500px;
+  border-radius: 5px;
+  border: 1px solid var(--primary-color);
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+}
+
+.search-tab button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  border: none;
+}
+
+.search-tab button:hover {
+  background-color: var(--hover-color);
+}
+
+
 /* 🔹 Search Results */
+.search-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px; /* ✅ Moves the whole section up */
+}
+
 .search-results {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Space between items */
-  max-width: 500px; /* Limit width for Spotify-like appearance */
-  margin: 0 auto; /* Centering */
+  gap: 10px;
+  max-width: 600px;
+  margin-top: 15px; /* ✅ Reduces spacing between search bar & results */
+  overflow-y: auto;
+  max-height: 300px; /* ✅ Prevents results from going too far down */
 }
 
+/* 🎵 Make search items smaller & compact */
 .search-result-item {
   display: flex;
   align-items: center;
   background: var(--primary-color);
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: background-color 0.3s ease-in-out;
-  cursor: pointer;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+  width: 100%;
+  height: 70px; /* ✅ Reduce height so more results fit */
 }
 
 .search-result-item:hover {
@@ -202,45 +245,36 @@ button:active {
 }
 
 .search-track-cover {
-  width: 50px;  /* Scaled-down album cover */
+  width: 50px; /* ✅ Make album covers smaller */
   height: 50px;
-  border-radius: 4px;
-  flex-shrink: 0; /* Prevent shrinking */
+  border-radius: 5px;
   margin-right: 10px;
 }
 
 .search-track-info {
   flex-grow: 1;
   text-align: left;
-  overflow: hidden; /* Prevent text overflow */
 }
 
 .search-track-info h3 {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px; /* ✅ Slightly smaller text */
   color: var(--secondary-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .search-track-info p {
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--secondary-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .search-play-button {
+  font-size: 18px;
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 20px;
   color: var(--secondary-color);
-  transition: color 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
 }
 
 .search-play-button:hover {
@@ -248,20 +282,26 @@ button:active {
 }
 
 
-/* 🔹 Music Player Bar */
+
+/* 🎶 Music Player Bar */
 .player-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
   background-color: var(--player-bg);
-  padding: 15px;
+  padding: 10px 15px; /* ✅ Adjust padding to fit contents */
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap; /* ✅ Prevents items from overflowing */
   border-top: 3px solid var(--primary-color);
+  z-index: 1000;
+  box-sizing: border-box;
 }
 
+
+/* 🎵 Player Info */
 .player-info {
   display: flex;
   align-items: center;
@@ -269,8 +309,8 @@ button:active {
 }
 
 .player-album-cover {
-  width: 45px; /* Reduced from 50px */
-  height: 45px;
+  width: 50px;
+  height: 50px;
   border-radius: 5px;
 }
 
@@ -280,25 +320,25 @@ button:active {
 
 .player-song-details h3 {
   margin: 0;
-  font-size: 14px; /* Slightly smaller */
+  font-size: 16px;
   color: var(--primary-color);
 }
 
 .player-song-details p {
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--hover-color);
 }
 
-/* 🔹 Player Controls */
+/* 🎮 Player Controls */
 .player-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
 }
 
 .player-button {
-  font-size: 20px; /* Slightly smaller */
+  font-size: 24px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -310,59 +350,46 @@ button:active {
   color: var(--hover-color);
 }
 
-/* 🔹 Progress Bar */
+/* ⏳ Progress Bar */
 .player-progress-container {
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: 35%;
+  gap: 10px;
+  flex-grow: 1; /* ✅ Allows dynamic resizing */
+  min-width: 150px; /* ✅ Ensures it doesn’t shrink too much */
+  max-width: 30%; /* ✅ Prevents it from overflowing */
 }
 
+
 .player-time {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--primary-color);
 }
 
-/* .player-progress-slider {
-  width: 100%;
-  appearance: none;
-  background: var(--progress-bar-bg);
-  height: 3px;
-  border-radius: 2px;
-  outline: none;
-  cursor: pointer;
-}
-
-.player-progress-slider::-webkit-slider-thumb {
-  appearance: none;
-  width: 8px;
-  height: 8px;
-  background: var(--primary-color);
-  border-radius: 50%;
-  cursor: pointer;
-} */
-
 .player-progress-slider {
+  flex-grow: 1; /* ✅ Allows it to take up only available space */
   width: 100%;
+  max-width: 100%; /* ✅ Prevents overflow */
   appearance: none;
   background: var(--progress-bar-bg);
-  height: 6px;
+  height: 5px;
   border-radius: 3px;
   outline: none;
   cursor: pointer;
 }
 
+
 .player-progress-slider::-webkit-slider-thumb {
   appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   background: var(--primary-color);
   border-radius: 50%;
   cursor: pointer;
 }
 
 
-@media (max-width: 48em) {
+/* @media (max-width: 48em) {
   .player-bar {
     flex-direction: column;
     height: 110px;
@@ -375,7 +402,21 @@ button:active {
   .player-progress-container {
     width: 80%;
   }
+} */
+@media (max-width: 768px) {
+  .player-bar {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .player-progress-container {
+    width: 90%; /* ✅ Expands properly on small screens */
+    max-width: 90%;
+    margin-top: 5px;
+  }
 }
+
 
 .ai-summary-box {
   position: absolute;
@@ -437,3 +478,11 @@ button:active {
   }
 }
 
+.background-visualization {
+  position: fixed; /* ✅ Fix to full screen */
+  top: 0;
+  left: 0;
+  width: 100vw; /* ✅ Full width */
+  height: 100vh; /* ✅ Full height */
+  z-index: -1; /* ✅ Ensure it stays behind all other content */
+}
