@@ -409,33 +409,7 @@ useEffect(() => {
     <p>{aiSummary || "Play a song to see the genre summary!"}</p>
   </div>
 
-  <div className="recent-container">
-    {/* 🎶 Top Playlists */}
-    <div className="top-playlists">
-      <h3>Top Playlists</h3>
-      <div className="playlist-grid">
-        {topPlaylists.map((playlist) => (
-          <div key={playlist.id} className="playlist-item">
-            <img src={playlist.images[0]?.url} alt="Playlist Cover" className="playlist-cover" />
-            <p>{playlist.name}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    {/* 🎵 Top Albums */}
-    <div className="top-albums">
-      <h3>Top Albums</h3>
-      <div className="album-grid">
-        {topAlbums.map((album) => (
-          <div key={album.id} className="album-item">
-            <img src={album.image} alt="Album Cover" className="album-cover" />
-            <p>{album.name}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
+  {/* Removed top playlists and albums. */}
 
   {/* 🎨 Canvas for Genre-Based Visualization */}
   <canvas ref={canvasRef} className="background-visualization"></canvas>
