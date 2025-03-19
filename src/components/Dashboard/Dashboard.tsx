@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { fetchSpotifyData, fetchPlaylists, getArtistGenres, searchSpotifyTracks, run } from "../../spotify";
-import "../../index.css"; // ✅ Use global styles from src/index.css
+// import genreMappings from "../../music_genres.json";
+import "../../index.css"; // Use global styles from src/index.css
 
 interface DashboardProps {
   token: string;
@@ -52,7 +53,7 @@ const genreColorMap: { [key: string]: [string, string] } = {
 
 const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  // const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [searchResults, setSearchResults] = useState<Track[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [deviceId, setDeviceId] = useState<string | null>(null);
@@ -62,12 +63,22 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [trackDuration, setTrackDuration] = useState(0);
   const [aiSummary, setAiSummary] = useState<string>("");
-  const [topAlbums, setTopAlbums] = useState<{ id: string; name: string; image: string }[]>([]);
-  const [topPlaylists, setTopPlaylists] = useState<Playlist[]>([]);
+  // const [topAlbums, setTopAlbums] = useState<{ id: string; name: string; image: string }[]>([]);
+  // const [topPlaylists, setTopPlaylists] = useState<Playlist[]>([]);
 
   const [genreColor, setGenreColor] = useState<[string, string]>(genreColorMap.default);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  // const findGenreCategory = (genre: string): string => {
+  //   const normalizedGenre = genre.toLowerCase().replace(/[\s\/]+/g, " "); // Normalize spaces & slashes
+  //   for (const [category, subgenres] of Object.entries(genreMappings)) {
+  //     if (subgenres.map((sg) => sg.toLowerCase()).includes(normalizedGenre)) {
+  //       return category;
+  //     }
+  //   }
+  //   return "default"; // Return "default" if no match is found
+  // };
+  
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -184,7 +195,17 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
     };
   }, [genreColor]);
   
-  
+  // const updateGenreColor = async (artistId: string) => {
+  //   try {
+  //     const genres = await getArtistGenres(artistId, token);
+  //     if (genres.length > 0) {
+  //       const primaryGenre = findGenreCategory(genres[0]);
+  //       setGenreColor(genreColorMap[primaryGenre] || genreColorMap.default);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating genre colors:", error);
+  //   }
+  // };
   
 
   useEffect(() => {
@@ -238,18 +259,20 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
             const genres = await getArtistGenres(artistId, token);
             const primaryGenre = genres[0] || "default";
             setGenreColor(genreColorMap[primaryGenre] || genreColorMap.default);
+            //updateGenreColor(artistId);
 
 
             if (genres.length > 0) {
-              run("@cf/meta/llama-3-8b-instruct", {
-                messages: [
-                  { role: "system", content: "You are a friendly assistant" },
-                  { role: "user", content: `Write a 1-line summary about these music genres: ${genres.join(", ")}` },
-                ],
-              }).then((response) => {
-                const aiText = response.result?.response || "No AI summary available.";
-                setAiSummary(aiText);
-              });
+              // run("@cf/meta/llama-3-8b-instruct", {
+              //   messages: [
+              //     { role: "system", content: "You are a friendly assistant" },
+              //     { role: "user", content: `Write a 1-line summary about these music genres: ${genres.join(", ")}` },
+              //   ],
+              // }).then((response) => {
+              //   const aiText = response.result?.response || "No AI summary available.";
+              //   setAiSummary(aiText);
+              // });
+              return;
             }
           }
         } catch (error) {
@@ -333,7 +356,7 @@ useEffect(() => {
     try {
       const userData = await fetchSpotifyData(token);
       if (userData) {
-        setUser(userData);  // ✅ Ensure user data is set
+        setUser(userData);  // Ensure user data is set
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -354,9 +377,9 @@ useEffect(() => {
   
       setCurrentTime(state.position / 1000); // Convert ms to seconds
       setTrackDuration(state.duration / 1000); // Convert ms to seconds
-    }, 1000); // ✅ Updates every second
+    }, 1000); // Updates every second
   
-    return () => clearInterval(interval); // ✅ Cleanup on unmount
+    return () => clearInterval(interval); // Cleanup on unmount
   }, [player, isPlaying]);
   
 
@@ -508,10 +531,10 @@ useEffect(() => {
   </div>
 
   {/* 🎨 AI Summary Box */}
-  <div className="ai-summary-box">
+  {/*<div className="ai-summary-box">
     <h3>AI Genre Summary</h3>
     <p>{aiSummary || "Play a song to see the genre summary!"}</p>
-  </div>
+  </div>*/}
 
   {/* Removed top playlists and albums. */}
 
