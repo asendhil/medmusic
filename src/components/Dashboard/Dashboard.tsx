@@ -328,6 +328,21 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
 //   fetchUserPlaylists();
 // }, [token]);
 
+useEffect(() => {
+  const fetchUserData = async () => {
+    try {
+      const userData = await fetchSpotifyData(token);
+      if (userData) {
+        setUser(userData);  // ✅ Ensure user data is set
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  fetchUserData();
+}, [token]);
+
 
   useEffect(() => {
     if (!player || !isPlaying) return;
