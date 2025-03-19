@@ -61,6 +61,8 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [trackDuration, setTrackDuration] = useState(0);
   const [aiSummary, setAiSummary] = useState<string>("");
+  const [topAlbums, setTopAlbums] = useState<{ id: string; name: string; image: string }[]>([]);
+  const [topPlaylists, setTopPlaylists] = useState<Playlist[]>([]);
 
   const [genreColor, setGenreColor] = useState<string>(genreColorMap.default);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -175,6 +177,68 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
       window.onSpotifyWebPlaybackSDKReady = initializePlayer;
     }
   }, [token]);
+
+  useEffect(() => {
+    const fetchTopTracks = async () => {
+      try {
+        const response = await fetch(
+          `https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=medium_term`,
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+    
+        if (!response.ok) throw new Error(`Failed to fetch top tracks: ${response.statusText}`);
+    
+        const data = await response.json();
+        console.log("🎵 Top Tracks Response:", data);
+    
+        // Extract unique albums from the top tracks
+        const albums: { id: string; name: string; image: string }[] = data.items
+          .map((track: { album: { id: string; name: string; images: { url: string }[] } }) => ({
+            id: track.album.id,
+            name: track.album.name,
+            image: track.album.images[0]?.url || "",
+          }))
+          .filter(
+            (album: { id: string }, index: number, self: { id: string }[]) =>
+              self.findIndex((a) => a.id === album.id) === index
+          ) // Deduplicate albums
+          .slice(0, 8); // Limit to 8
+    
+        setTopAlbums(albums);
+      } catch (error) {
+        console.error("🚨 Error fetching top albums:", error);
+      }
+    };
+    
+  
+    fetchTopTracks();
+  }, [token]);
+
+useEffect(() => {
+  const fetchUserPlaylists = async () => {
+    try {
+      const response = await fetch(`https://api.spotify.com/v1/me/playlists?limit=8`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error(`Failed to fetch playlists: ${response.statusText}`);
+
+      const data = await response.json();
+      console.log("📂 User Playlists Response:", data);
+
+      setTopPlaylists(data.items);
+    } catch (error) {
+      console.error("🚨 Error fetching user playlists:", error);
+    }
+  };
+
+  fetchUserPlaylists();
+}, [token]);
+
 
   useEffect(() => {
     if (!player || !isPlaying) return;
@@ -343,6 +407,34 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   <div className="ai-summary-box">
     <h3>AI Genre Summary</h3>
     <p>{aiSummary || "Play a song to see the genre summary!"}</p>
+  </div>
+
+  <div className="recent-container">
+    {/* 🎶 Top Playlists */}
+    <div className="top-playlists">
+      <h3>Top Playlists</h3>
+      <div className="playlist-grid">
+        {topPlaylists.map((playlist) => (
+          <div key={playlist.id} className="playlist-item">
+            <img src={playlist.images[0]?.url} alt="Playlist Cover" className="playlist-cover" />
+            <p>{playlist.name}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* 🎵 Top Albums */}
+    <div className="top-albums">
+      <h3>Top Albums</h3>
+      <div className="album-grid">
+        {topAlbums.map((album) => (
+          <div key={album.id} className="album-item">
+            <img src={album.image} alt="Album Cover" className="album-cover" />
+            <p>{album.name}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   </div>
 
   {/* 🎨 Canvas for Genre-Based Visualization */}

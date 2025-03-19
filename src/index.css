@@ -444,6 +444,43 @@ button:active {
   text-align: center;
 }
 
+/* 🔹 Recent Section */
+.recent-section {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.recent-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  flex-wrap: wrap;
+}
+
+/* 🔹 Playlists & Albums Grid */
+.playlist-grid,
+.album-grid {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.playlist-item,
+.album-item {
+  width: 150px;
+  text-align: center;
+}
+
+.playlist-cover,
+.album-cover {
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+
 @media (max-width: 768px) {
   .search-track-cover {
     width: 7vw;  /* Adjust width */
