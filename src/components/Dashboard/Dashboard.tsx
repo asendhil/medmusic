@@ -31,23 +31,24 @@ interface Track {
 }
 
 // 🎨 Genre color mapping
-const genreColorMap: { [key: string]: string } = {
-  pop: "#ff9ff3",
-  rock: "#ff6b6b",
-  jazz: "#feca57",
-  hiphop: "#48dbfb",
-  classical: "#1dd1a1",
-  electronic: "#5f27cd",
-  metal: "#d63031",
-  country: "#eccc68",
-  blues: "#0652DD",
-  reggae: "#10ac84",
-  folk: "#8395a7",
-  indie: "#f368e0",
-  funk: "#ff9f43",
-  soul: "#ff6348",
-  default: "#222f3e",
+const genreColorMap: { [key: string]: [string, string] } = {
+  pop: ["#ff9ff3", "#f368e0"], // Pink to Purple
+  rock: ["#ff6b6b", "#ee5253"], // Red to Dark Red
+  jazz: ["#feca57", "#ff9f43"], // Yellow-Orange
+  hiphop: ["#48dbfb", "#1dd1a1"], // Blue to Teal
+  classical: ["#1dd1a1", "#10ac84"], // Green to Dark Green
+  electronic: ["#5f27cd", "#341f97"], // Purple to Dark Purple
+  metal: ["#d63031", "#c23616"], // Deep Red to Maroon
+  country: ["#eccc68", "#ffbe76"], // Gold to Light Orange
+  blues: ["#0652DD", "#1B1464"], // Blue to Dark Blue
+  reggae: ["#10ac84", "#0a3d62"], // Green to Dark Green
+  folk: ["#8395a7", "#576574"], // Soft Blue to Grayish Blue
+  indie: ["#f368e0", "#ff6b81"], // Pink to Red
+  funk: ["#ff9f43", "#ff6b6b"], // Orange to Red
+  soul: ["#ff6348", "#d63031"], // Deep Orange to Red
+  default: ["#222f3e", "#576574"], // Dark Gray to Light Gray
 };
+
 
 const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -64,7 +65,7 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [topAlbums, setTopAlbums] = useState<{ id: string; name: string; image: string }[]>([]);
   const [topPlaylists, setTopPlaylists] = useState<Playlist[]>([]);
 
-  const [genreColor, setGenreColor] = useState<string>(genreColorMap.default);
+  const [genreColor, setGenreColor] = useState<[string, string]>(genreColorMap.default);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -74,93 +75,115 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
     if (!ctx) return;
   
     let animationFrameId: number;
-    let hueShift = 0; // 🌈 Used to create shifting color effects
+    let hueShift = 0;
+    let transitionProgress = 0;
+    //let baseColors: [string, string] = genreColorMap[genreColor] || genreColorMap.default;
   
-    // ✅ Resize canvas to match full screen
+    // ✅ Resize canvas dynamically
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
   
     window.addEventListener("resize", resizeCanvas);
-    resizeCanvas(); // Ensure correct size on load
+    resizeCanvas();
   
-    // ✅ Convert HEX to HSL dynamically
+    // ✅ Convert HEX to HSL
     const hexToHSL = (hex: string) => {
       let r = parseInt(hex.substring(1, 3), 16) / 255;
       let g = parseInt(hex.substring(3, 5), 16) / 255;
       let b = parseInt(hex.substring(5, 7), 16) / 255;
   
-      let max = Math.max(r, g, b), min = Math.min(r, g, b);
-      let h = 0, s = 0, l = (max + min) / 2;
+      let max = Math.max(r, g, b),
+        min = Math.min(r, g, b);
+      let h = 0,
+        s = 0,
+        l = (max + min) / 2;
   
       if (max !== min) {
         let d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
         switch (max) {
-          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-          case g: h = (b - r) / d + 2; break;
-          case b: h = (r - g) / d + 4; break;
+          case r:
+            h = (g - b) / d + (g < b ? 6 : 0);
+            break;
+          case g:
+            h = (b - r) / d + 2;
+            break;
+          case b:
+            h = (r - g) / d + 4;
+            break;
         }
         h *= 60;
       }
   
-      return { h, s: s * 100, l: l * 100 };
+      return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
     };
   
-    // ✅ Get genre color & convert to HSL
-    const baseColorHex = genreColorMap[genreColor] || genreColorMap.default;
-    const baseHSL = hexToHSL(baseColorHex);
+    let baseColors: [string, string] = genreColor;
+    let startColor = hexToHSL(baseColors[0]); // ✅ Now it works
+    let endColor = hexToHSL(baseColors[1]);   // ✅ Now it works
   
-    // ✅ Generate moving blobs dynamically
+    // ✅ Generate Moving Blobs
     const blobs = Array.from({ length: 5 }).map(() => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      radius: Math.random() * 150 + 80, // Blobs of varying sizes
-      dx: (Math.random() - 0.5) * 2, // Movement speed X
-      dy: (Math.random() - 0.5) * 2, // Movement speed Y
+      radius: Math.random() * 150 + 80,
+      dx: (Math.random() - 0.5) * 2,
+      dy: (Math.random() - 0.5) * 2,
     }));
   
     const animateBackground = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      hueShift += 0.3; // Slowly shift colors
+      hueShift += 0.3;
   
+      // ✅ Ensure transition progress remains between 0 and 1
+      transitionProgress = Math.min(transitionProgress + 0.02, 1);
+  
+      const interpolateColor = (start: { h: number; s: number; l: number }, end: { h: number; s: number; l: number }, progress: number) => {
+        let h = start.h + (end.h - start.h) * progress;
+        let s = start.s + (end.s - start.s) * progress;
+        let l = start.l + (end.l - start.l) * progress;
+        return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
+      };
+  
+      let bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      bgGradient.addColorStop(0, interpolateColor(startColor, endColor, transitionProgress));
+      bgGradient.addColorStop(1, interpolateColor(endColor, startColor, transitionProgress));
+  
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+      // ✅ Moving blobs with genre colors
       blobs.forEach((blob) => {
         blob.x += blob.dx;
         blob.y += blob.dy;
   
-        // ✅ Bounce off walls
         if (blob.x - blob.radius < 0 || blob.x + blob.radius > canvas.width) blob.dx *= -1;
         if (blob.y - blob.radius < 0 || blob.y + blob.radius > canvas.height) blob.dy *= -1;
   
-        // ✅ Create dynamic gradient
-        const gradient = ctx.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, blob.radius);
-        
-        // 🎨 Dynamic hue shift based on base genre color
-        let newHue = (baseHSL.h + hueShift) % 360;
-        let color1 = `hsl(${newHue}, ${baseHSL.s}%, ${baseHSL.l + 10}%)`;
-        let color2 = `hsl(${newHue + 20}, ${baseHSL.s}%, ${baseHSL.l - 10}%)`;
-  
-        gradient.addColorStop(0, color1);
-        gradient.addColorStop(1, color2);
+        let blobGradient = ctx.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, blob.radius);
+        blobGradient.addColorStop(0, `hsl(${startColor.h}, ${startColor.s}%, ${Math.min(startColor.l + 10, 100)}%)`);
+        blobGradient.addColorStop(1, `hsl(${endColor.h}, ${endColor.s}%, ${Math.max(endColor.l - 10, 0)}%)`);
   
         ctx.beginPath();
         ctx.arc(blob.x, blob.y, blob.radius, 0, Math.PI * 2);
-        ctx.fillStyle = gradient;
-        ctx.globalAlpha = 0.8; // Soft transparency
+        ctx.fillStyle = blobGradient;
+        ctx.globalAlpha = 0.7;
         ctx.fill();
       });
   
       animationFrameId = requestAnimationFrame(animateBackground);
     };
   
-    animateBackground(); // Start animation
+    animateBackground();
   
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", resizeCanvas);
     };
-  }, [genreColor]); // ✅ Runs every time `genreColor` changes
+  }, [genreColor]);
+  
   
   
 
@@ -215,6 +238,7 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
             const genres = await getArtistGenres(artistId, token);
             const primaryGenre = genres[0] || "default";
             setGenreColor(genreColorMap[primaryGenre] || genreColorMap.default);
+
 
             if (genres.length > 0) {
               run("@cf/meta/llama-3-8b-instruct", {
