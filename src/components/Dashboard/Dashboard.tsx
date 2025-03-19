@@ -243,66 +243,66 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
     }
   }, [token]);
 
-  useEffect(() => {
-    const fetchTopTracks = async () => {
-      try {
-        const response = await fetch(
-          `https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=medium_term`,
-          {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+//   useEffect(() => {
+//     const fetchTopTracks = async () => {
+//       try {
+//         const response = await fetch(
+//           `https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=medium_term`,
+//           {
+//             method: "GET",
+//             headers: { Authorization: `Bearer ${token}` },
+//           }
+//         );
     
-        if (!response.ok) throw new Error(`Failed to fetch top tracks: ${response.statusText}`);
+//         if (!response.ok) throw new Error(`Failed to fetch top tracks: ${response.statusText}`);
     
-        const data = await response.json();
-        console.log("🎵 Top Tracks Response:", data);
+//         const data = await response.json();
+//         console.log("🎵 Top Tracks Response:", data);
     
-        // Extract unique albums from the top tracks
-        const albums: { id: string; name: string; image: string }[] = data.items
-          .map((track: { album: { id: string; name: string; images: { url: string }[] } }) => ({
-            id: track.album.id,
-            name: track.album.name,
-            image: track.album.images[0]?.url || "",
-          }))
-          .filter(
-            (album: { id: string }, index: number, self: { id: string }[]) =>
-              self.findIndex((a) => a.id === album.id) === index
-          ) // Deduplicate albums
-          .slice(0, 8); // Limit to 8
+//         // Extract unique albums from the top tracks
+//         const albums: { id: string; name: string; image: string }[] = data.items
+//           .map((track: { album: { id: string; name: string; images: { url: string }[] } }) => ({
+//             id: track.album.id,
+//             name: track.album.name,
+//             image: track.album.images[0]?.url || "",
+//           }))
+//           .filter(
+//             (album: { id: string }, index: number, self: { id: string }[]) =>
+//               self.findIndex((a) => a.id === album.id) === index
+//           ) // Deduplicate albums
+//           .slice(0, 8); // Limit to 8
     
-        setTopAlbums(albums);
-      } catch (error) {
-        console.error("🚨 Error fetching top albums:", error);
-      }
-    };
+//         setTopAlbums(albums);
+//       } catch (error) {
+//         console.error("🚨 Error fetching top albums:", error);
+//       }
+//     };
     
   
-    fetchTopTracks();
-  }, [token]);
+//     fetchTopTracks();
+//   }, [token]);
 
-useEffect(() => {
-  const fetchUserPlaylists = async () => {
-    try {
-      const response = await fetch(`https://api.spotify.com/v1/me/playlists?limit=8`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+// useEffect(() => {
+//   const fetchUserPlaylists = async () => {
+//     try {
+//       const response = await fetch(`https://api.spotify.com/v1/me/playlists?limit=8`, {
+//         method: "GET",
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
 
-      if (!response.ok) throw new Error(`Failed to fetch playlists: ${response.statusText}`);
+//       if (!response.ok) throw new Error(`Failed to fetch playlists: ${response.statusText}`);
 
-      const data = await response.json();
-      console.log("📂 User Playlists Response:", data);
+//       const data = await response.json();
+//       console.log("📂 User Playlists Response:", data);
 
-      setTopPlaylists(data.items);
-    } catch (error) {
-      console.error("🚨 Error fetching user playlists:", error);
-    }
-  };
+//       setTopPlaylists(data.items);
+//     } catch (error) {
+//       console.error("🚨 Error fetching user playlists:", error);
+//     }
+//   };
 
-  fetchUserPlaylists();
-}, [token]);
+//   fetchUserPlaylists();
+// }, [token]);
 
 
   useEffect(() => {
