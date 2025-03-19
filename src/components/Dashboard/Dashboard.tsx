@@ -68,35 +68,100 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    fetchSpotifyData(token).then(setUser);
-    fetchPlaylists(token).then(setPlaylists);
-  }, [token]);
-
-  useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
   
-    // ✅ Resize canvas to match full window size
+    let animationFrameId: number;
+    let hueShift = 0; // 🌈 Used to create shifting color effects
+  
+    // ✅ Resize canvas to match full screen
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      drawBackground(ctx); // ✅ Draw initial background
     };
   
-    // ✅ Function to draw the color background
-    const drawBackground = (ctx: CanvasRenderingContext2D) => {
-      ctx.fillStyle = genreColor;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    };
-  
-    // ✅ Handle window resizing
     window.addEventListener("resize", resizeCanvas);
-    resizeCanvas(); // Ensure full size on load
+    resizeCanvas(); // Ensure correct size on load
   
-    return () => window.removeEventListener("resize", resizeCanvas);
-  }, [genreColor]); // ✅ Re-run when `genreColor` changes
+    // ✅ Convert HEX to HSL dynamically
+    const hexToHSL = (hex: string) => {
+      let r = parseInt(hex.substring(1, 3), 16) / 255;
+      let g = parseInt(hex.substring(3, 5), 16) / 255;
+      let b = parseInt(hex.substring(5, 7), 16) / 255;
+  
+      let max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0, l = (max + min) / 2;
+  
+      if (max !== min) {
+        let d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h *= 60;
+      }
+  
+      return { h, s: s * 100, l: l * 100 };
+    };
+  
+    // ✅ Get genre color & convert to HSL
+    const baseColorHex = genreColorMap[genreColor] || genreColorMap.default;
+    const baseHSL = hexToHSL(baseColorHex);
+  
+    // ✅ Generate moving blobs dynamically
+    const blobs = Array.from({ length: 5 }).map(() => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 150 + 80, // Blobs of varying sizes
+      dx: (Math.random() - 0.5) * 2, // Movement speed X
+      dy: (Math.random() - 0.5) * 2, // Movement speed Y
+    }));
+  
+    const animateBackground = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hueShift += 0.3; // Slowly shift colors
+  
+      blobs.forEach((blob) => {
+        blob.x += blob.dx;
+        blob.y += blob.dy;
+  
+        // ✅ Bounce off walls
+        if (blob.x - blob.radius < 0 || blob.x + blob.radius > canvas.width) blob.dx *= -1;
+        if (blob.y - blob.radius < 0 || blob.y + blob.radius > canvas.height) blob.dy *= -1;
+  
+        // ✅ Create dynamic gradient
+        const gradient = ctx.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, blob.radius);
+        
+        // 🎨 Dynamic hue shift based on base genre color
+        let newHue = (baseHSL.h + hueShift) % 360;
+        let color1 = `hsl(${newHue}, ${baseHSL.s}%, ${baseHSL.l + 10}%)`;
+        let color2 = `hsl(${newHue + 20}, ${baseHSL.s}%, ${baseHSL.l - 10}%)`;
+  
+        gradient.addColorStop(0, color1);
+        gradient.addColorStop(1, color2);
+  
+        ctx.beginPath();
+        ctx.arc(blob.x, blob.y, blob.radius, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.globalAlpha = 0.8; // Soft transparency
+        ctx.fill();
+      });
+  
+      animationFrameId = requestAnimationFrame(animateBackground);
+    };
+  
+    animateBackground(); // Start animation
+  
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", resizeCanvas);
+    };
+  }, [genreColor]); // ✅ Runs every time `genreColor` changes
+  
   
 
   useEffect(() => {
