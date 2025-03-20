@@ -6,7 +6,7 @@
     { "source": "/old-path", "destination": "/new-path", "permanent": true }
   ],
   "headers": [
-    { "source": "/api/*", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }] }
+    { "source": "/api/(.*)", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }] }
   ],
   "cleanUrls": true,
   "trailingSlash": false
