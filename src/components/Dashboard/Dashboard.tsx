@@ -33,22 +33,22 @@ interface Track {
 
 // 🎨 Genre color mapping
 const genreColorMap: { [key: string]: [string, string] } = {
-  "pop": ["#ff9ff3", "#f368e0"], // Pink to Purple
-  "rock": ["#ff6b6b", "#ee5253"], // Red to Dark Red
-  "jazz": ["#feca57", "#ff9f43"], // Yellow-Orange
-  "hip hop": ["#48dbfb", "#1dd1a1"], // Blue to Teal
-  "classical": ["#1dd1a1", "#10ac84"], // Green to Dark Green
+  "pop": ["#FFD6D1", "#FFA7A6"], // Peach Pink
+  "rock": ["#525150", "#474746"], // Dark Grey
+  "jazz": ["#CAE9F5", "#AFDCEB"], // Light Blue
+  "hip hop": ["#FFFFC5", "#FFEE8C"], // Light Yellow
+  "classical": ["#FBF3E9", "#FAEEDA"], // Off White
   "electronic": ["#5f27cd", "#341f97"], // Purple to Dark Purple
   "metal": ["#d63031", "#c23616"], // Deep Red to Maroon
-  "country": ["#eccc68", "#ffbe76"], // Gold to Light Orange
-  "blues": ["#0652DD", "#1B1464"], // Blue to Dark Blue
-  "reggae": ["#10ac84", "#0a3d62"], // Green to Dark Green
-  "folk": ["#8395a7", "#576574"], // Soft Blue to Grayish Blue
-  "indie": ["#f368e0", "#ff6b81"], // Pink to Red
-  "funk": ["#ff9f43", "#ff6b6b"], // Orange to Red
-  "soul": ["#ff6348", "#d63031"], // Deep Orange to Red
-  "lo-fi": ["#6a0572", "#9c27b0"], // Soft Purple to Vibrant Purple
-  "default": ["#222f3e", "#576574"], // Dark Gray to Light Gray
+  "country": ["#FFD8B2", "#FFC78F"], // Light Orange
+  // "blues": ["#0652DD", "#1B1464"], // Blue to Dark Blue
+  // "reggae": ["#10ac84", "#0a3d62"], // Green to Dark Green
+  // "folk": ["#8395a7", "#576574"], // Soft Blue to Grayish Blue
+  // "indie": ["#f368e0", "#ff6b81"], // Pink to Red
+  // "funk": ["#ff9f43", "#ff6b6b"], // Orange to Red
+  // "soul": ["#ff6348", "#d63031"], // Deep Orange to Red
+  "lo-fi": ["#6D5ACF", "#A092EA"], // Indigo
+  "default": ["#B3C0A4", "#7A896F"], // Green
 };
 
 
