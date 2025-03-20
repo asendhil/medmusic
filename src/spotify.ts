@@ -1,7 +1,8 @@
 // src/spotify.ts
 
 const CLIENT_ID = "fa3ca1ebe37a412c966ebdfca389a02d";
-const REDIRECT_URI = "http://localhost:5173/";
+//const REDIRECT_URI = "http://localhost:5173/";
+const REDIRECT_URI = "https://medmusic-sooty.vercel.app/callback";
 const AUTH_URL = `https://accounts.spotify.com/authorize?
 client_id=${CLIENT_ID}
 &response_type=token
