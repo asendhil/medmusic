@@ -1,9 +1,13 @@
 {
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    }
-  },
-  "routes": [{ "src": "/(.*)", "dest": "/index.html" }],
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/callback", "destination": "/index.html" }
+  ],
+  "redirects": [
+    { "source": "/old-path", "destination": "/new-path", "permanent": true }
+  ],
+  "headers": [
+    { "source": "/api/*", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }] }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
