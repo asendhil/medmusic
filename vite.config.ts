@@ -3,13 +3,8 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  build: {
-    outDir: "dist", // Ensure correct output folder
-  },
+  base: "/", // ✅ Ensures correct path resolution
   server: {
-    port: 5173, // Default for Vite, adjust if needed
+    host: true,
   },
-  preview: {
-    port: 4173, // Default Vite preview port
-  }
 });
