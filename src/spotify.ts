@@ -16,21 +16,33 @@ export const loginWithSpotify = (): void => {
   window.location.href = AUTH_URL;
 };
 
+// export const getTokenFromUrl = () => {
+//   try {
+//     return window.location.hash
+//       .substring(1)
+//       .split("&")
+//       .reduce((initial: any, item) => {
+//         let parts = item.split("=");
+//         initial[parts[0]] = decodeURIComponent(parts[1]);
+//         return initial;
+//       }, {});
+//   } catch (error) {
+//     console.error("❌ Error parsing token from URL:", error);
+//     return {};
+//   }
+// };
+
 export const getTokenFromUrl = () => {
-  try {
-    return window.location.hash
-      .substring(1)
-      .split("&")
-      .reduce((initial: any, item) => {
-        let parts = item.split("=");
-        initial[parts[0]] = decodeURIComponent(parts[1]);
-        return initial;
-      }, {});
-  } catch (error) {
-    console.error("❌ Error parsing token from URL:", error);
-    return {};
-  }
+  return window.location.hash
+    .substring(1)
+    .split("&")
+    .reduce((initial: any, item) => {
+      let parts = item.split("=");
+      initial[parts[0]] = decodeURIComponent(parts[1]);
+      return initial;
+    }, {});
 };
+
 
 export const fetchSpotifyData = async (token: string): Promise<any> => {
   try {
