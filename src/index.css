@@ -73,6 +73,14 @@ button:active {
   color: var(--secondary-color);
 }
 
+.spotify-logo {
+  width: 20px;  /* ✅ Adjust the size */
+  height: 20px; /* ✅ Adjust the size */
+  margin-right: 8px; /* ✅ Adds spacing between the logo and text */
+  vertical-align: middle; /* ✅ Aligns with text properly */
+}
+
+
 /* 🔹 Dashboard Layout */
 .dashboard-container {
   text-align: center;
