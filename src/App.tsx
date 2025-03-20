@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom"; 
 import Login from "./components/Login/Login";
 import Dashboard from "./components/Dashboard/Dashboard";
 import PlaylistPage from "./components/PlaylistPage/PlaylistPage";
@@ -7,7 +7,6 @@ import logo from "./assets/MedMusic-Logo.png";
 
 const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // ✅ Extract token from the URL after login
@@ -19,7 +18,13 @@ const App: React.FC = () => {
       setToken(_token);
       localStorage.setItem("spotifyToken", _token); // ✅ Save token for persistence
       window.location.hash = ""; // ✅ Clear the URL
-      navigate("/"); // ✅ Redirect to dashboard
+
+      // ✅ Manually change the hash to navigate (since we cannot use useNavigate)
+      //window.location.hash = "/";
+      if (_token && !window.location.hash.includes("/")) {
+        window.location.hash = "/"; // ✅ Redirect only if necessary
+      }
+      
     }
   }, []);
 
@@ -45,7 +50,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <Router>
+    <HashRouter>
       <Routes>
         {/* ✅ If user is logged in, show Dashboard; otherwise, show Login */}
         <Route path="/" element={token ? <Dashboard token={token} /> : <Login />} />
@@ -53,8 +58,10 @@ const App: React.FC = () => {
         
         {/* ✅ Handle the blank callback page after login */}
         <Route path="/callback" element={<div>Loading...</div>} />
+        <Route path="/callback" element={<h2>Authenticating...</h2>} />
+
       </Routes>
-    </Router>
+    </HashRouter>
   );
 };
 
