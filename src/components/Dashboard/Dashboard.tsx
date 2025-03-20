@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { fetchSpotifyData, fetchPlaylists, getArtistGenres, searchSpotifyTracks, run } from "../../spotify";
+//import { fetchSpotifyData, fetchPlaylists, getArtistGenres, searchSpotifyTracks, run } from "../../spotify";
+import { fetchSpotifyData, getArtistGenres } from "../../spotify";
 // import genreMappings from "../../music_genres.json";
 import "../../index.css"; // Use global styles from src/index.css
 
@@ -11,11 +12,11 @@ interface User {
   display_name: string;
 }
 
-interface Playlist {
-  id: string;
-  name: string;
-  images: { url: string }[];
-}
+// interface Playlist {
+//   id: string;
+//   name: string;
+//   images: { url: string }[];
+// }
 
 interface Artist {
   id: string;
@@ -63,7 +64,7 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [trackDuration, setTrackDuration] = useState(0);
-  const [aiSummary, setAiSummary] = useState<string>("");
+  //const [aiSummary, setAiSummary] = useState<string>("");
   // const [topAlbums, setTopAlbums] = useState<{ id: string; name: string; image: string }[]>([]);
   // const [topPlaylists, setTopPlaylists] = useState<Playlist[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
