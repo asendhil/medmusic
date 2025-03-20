@@ -553,6 +553,7 @@ useEffect(() => {
   return (
     <div className="dashboard-container">
   <h1>Welcome, {user?.display_name}!</h1>
+  <h2>MedMusic is Powered by Spotify</h2>
 
   {/* 🔍 Search Section (Contains both Search Bar & Collapsible Results) */}
 <div className="search-container">
