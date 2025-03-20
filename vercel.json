@@ -1,5 +1,9 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  },
   "routes": [{ "src": "/(.*)", "dest": "/index.html" }],
-  "cleanUrls": true
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
