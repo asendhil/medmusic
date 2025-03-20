@@ -1,0 +1,57 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #1DB954;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #17a34a;
+  }
+  
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #1db954;
+    color: white;
+  }
+  
+  .login-title {
+    font-size: 2rem;
+  }
+  
+  .login-button {
+    padding: 15px 30px;
+    font-size: 16px;
+    background-color: white;
+    color: #1db954;
+    border-radius: 50px;
+    transition: all 0.3s;
+  }
+
+  .toggle-button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: #48dbfb;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+  }
+  
+  .toggle-button:hover {
+    background-color: #1dd1a1;
+  }
+  
+  

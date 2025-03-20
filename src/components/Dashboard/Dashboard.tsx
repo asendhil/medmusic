@@ -66,6 +66,12 @@ const Dashboard: React.FC<DashboardProps> = ({ token }) => {
   const [aiSummary, setAiSummary] = useState<string>("");
   // const [topAlbums, setTopAlbums] = useState<{ id: string; name: string; image: string }[]>([]);
   // const [topPlaylists, setTopPlaylists] = useState<Playlist[]>([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+
+const toggleSearchResults = () => {
+  setShowSearchResults((prev) => !prev);
+};
+
 
   const [genreColor, setGenreColor] = useState<[string, string]>(genreColorMap.default);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -547,19 +553,23 @@ useEffect(() => {
     <div className="dashboard-container">
   <h1>Welcome, {user?.display_name}!</h1>
 
-  {/* 🔍 Search Section (Contains both Search Bar & Results) */}
-  <div className="search-container">
-    <div className="search-tab">
-      <input
-        type="text"
-        placeholder="Search for a song..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <button onClick={handleSearch}>Search</button>
-    </div>
+  {/* 🔍 Search Section (Contains both Search Bar & Collapsible Results) */}
+<div className="search-container">
+  <div className="search-tab">
+    <input
+      type="text"
+      placeholder="Search for a song..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+    <button onClick={handleSearch}>Search</button>
+    <button onClick={toggleSearchResults} className="toggle-button">
+      {showSearchResults ? "▲ Hide Results" : "▼ Show Results"}
+    </button>
+  </div>
 
-    {/* 🔎 Search Results (Now Positioned Closer) */}
+  {/* 🔎 Search Results (Only Show if Expanded) */}
+  {showSearchResults && (
     <div className="search-results">
       {searchResults.map((track) => (
         <div key={track.id} className="search-result-item">
@@ -572,7 +582,9 @@ useEffect(() => {
         </div>
       ))}
     </div>
-  </div>
+  )}
+</div>
+
 
   {/* 🎨 AI Summary Box */}
   {/*<div className="ai-summary-box">
