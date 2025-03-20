@@ -36,10 +36,10 @@ export const getTokenFromUrl = () => {
   return window.location.hash
     .substring(1)
     .split("&")
-    .reduce((initial: any, item) => {
-      let parts = item.split("=");
-      initial[parts[0]] = decodeURIComponent(parts[1]);
-      return initial;
+    .reduce((acc: { [key: string]: string }, item) => {
+      const parts = item.split("=");
+      acc[parts[0]] = decodeURIComponent(parts[1]);
+      return acc;
     }, {});
 };
 

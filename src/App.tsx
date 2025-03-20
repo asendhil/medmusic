@@ -1,84 +1,37 @@
-// import React, { useEffect, useState } from "react";
-// import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-// import Login from "./components/Login/Login";
-// import Dashboard from "./components/Dashboard/Dashboard";
-// import PlaylistPage from "./components/PlaylistPage/PlaylistPage";
-// import { getTokenFromUrl } from "./spotify";
-// import logo from "./assets/MedMusic-Logo.png";
-
-// const App: React.FC = () => {
-//   const [token, setToken] = useState<string | null>(null);
-
-//   useEffect(() => {
-//     // ✅ Use setTimeout to prevent race conditions
-//     setTimeout(() => {
-//       try {
-//         const _token = getTokenFromUrl().access_token;
-//         if (_token) {
-//           setToken(_token);
-//           window.location.hash = ""; // ✅ Clears token from URL to prevent leaks
-//         }
-//       } catch (error) {
-//         console.error("Error parsing Spotify token:", error);
-//       }
-//     }, 500); // ✅ Slight delay for smoother redirects
-//   }, []);
-
-//   // ✅ Dynamically update the favicon
-//   useEffect(() => {
-//     const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
-//     if (link) {
-//       link.href = logo;
-//     } else {
-//       const newLink = document.createElement("link");
-//       newLink.rel = "icon";
-//       newLink.href = logo;
-//       document.head.appendChild(newLink);
-//     }
-//   }, []);
-
-//   return (
-//     <Router>
-//       <Routes>
-//         {/* ✅ If user is logged in, show Dashboard, otherwise show Login */}
-//         <Route path="/" element={token ? <Dashboard token={token} /> : <Login />} />
-//         <Route path="/playlist/:id" element={<PlaylistPage token={token} />} />
-//       </Routes>
-//     </Router>
-//   );
-// };
-
-// export default App;
-
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 import Login from "./components/Login/Login";
 import Dashboard from "./components/Dashboard/Dashboard";
 import PlaylistPage from "./components/PlaylistPage/PlaylistPage";
-import { getTokenFromUrl } from "./spotify";
 import logo from "./assets/MedMusic-Logo.png";
 
 const App: React.FC = () => {
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("spotify_access_token") // ✅ Persist token on refresh
-  );
+  const [token, setToken] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // ✅ Extract token from URL after login
-    setTimeout(() => {
-      try {
-        const _token = getTokenFromUrl().access_token;
-        if (_token) {
-          localStorage.setItem("spotify_access_token", _token); // ✅ Save it!
-          setToken(_token);
-          window.location.hash = ""; // ✅ Clears token from URL
-        }
-      } catch (error) {
-        console.error("Error parsing Spotify token:", error);
-      }
-    }, 500); // ✅ Slight delay for smoother redirects
+    // ✅ Extract token from the URL after login
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.replace("#", "?")); // Convert hash to query format
+    const _token = params.get("access_token");
+
+    if (_token) {
+      setToken(_token);
+      localStorage.setItem("spotifyToken", _token); // ✅ Save token for persistence
+      window.location.hash = ""; // ✅ Clear the URL
+      navigate("/"); // ✅ Redirect to dashboard
+    }
   }, []);
 
+  useEffect(() => {
+    // ✅ Load token from local storage on refresh
+    const storedToken = localStorage.getItem("spotifyToken");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
+
+  // ✅ Dynamically update the favicon
   useEffect(() => {
     const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
     if (link) {
@@ -94,9 +47,12 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        {/* ✅ If user is logged in, show Dashboard, otherwise show Login */}
+        {/* ✅ If user is logged in, show Dashboard; otherwise, show Login */}
         <Route path="/" element={token ? <Dashboard token={token} /> : <Login />} />
         <Route path="/playlist/:id" element={<PlaylistPage token={token} />} />
+        
+        {/* ✅ Handle the blank callback page after login */}
+        <Route path="/callback" element={<div>Loading...</div>} />
       </Routes>
     </Router>
   );
